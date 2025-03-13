@@ -1,5 +1,6 @@
 import json
 from django.shortcuts import render
+from .models import User
 import tensorflow as tf
 import numpy as np
 from django.views.decorators.csrf import csrf_exempt
@@ -69,6 +70,39 @@ def simple_api(request):
 
 def home(request):
     return HttpResponse("home")
+
+def getBlogs(request):
+     blogs = [
+        {
+            'id': '1',
+            'title': 'The Importance of Regular Checkups',
+            'imageUrl': 'https://via.placeholder.com/150',
+            'subText': 'Regular checkups are important to ensure that you stay healthy and catch any potential issues early.',
+            'body': 'Regular checkups can help detect health problems before they become serious. They are essential for maintaining good health.',
+        },
+        {
+            'id': '2',
+            'title': 'How to Stay Healthy During Flu Season',
+            'imageUrl': 'https://via.placeholder.com/150',
+            'subText': 'Flu season can be tough, but there are ways to protect yourself and stay healthy throughout the season.',
+            'body': 'During flu season, getting the flu vaccine, washing your hands, and staying hydrated are essential for staying healthy.',
+        },
+        {
+            'id': '3',
+            'title': 'Mental Health: Coping Strategies',
+            'imageUrl': 'https://via.placeholder.com/150',
+            'subText': 'Mental health is just as important as physical health. Learn coping strategies to maintain mental well-being.',
+            'body': 'Mental health can be challenging, but practicing mindfulness, seeking therapy, and staying active can help cope with mental health issues.',
+        }, {
+            'id': '4',
+            'title': 'Specially For Your Skin',
+            'imageUrl': 'https://via.placeholder.com/150',
+            'subText': 'Mental health is just as important as physical health. Learn coping strategies to maintain mental well-being.',
+            'body': 'Mental health can be challenging, but practicing mindfulness, seeking therapy, and staying active can help cope with mental health issues.',
+        },
+    ]
+     return JsonResponse({'blogs': blogs})
+
 
 
 @csrf_exempt  # Temporarily disable CSRF for this view (not recommended in production)
@@ -152,3 +186,23 @@ def receive_register_info(request):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   
+
+@csrf_exempt  # Temporarily disable CSRF for this view (not recommended in production)
+def confirm_login_info(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            HealthCareNumber = data.get("HealthCareNumber")
+            user = User.objects.filter(HealthCareNumber=HealthCareNumber).first()
+            if user:
+                return JsonResponse({"firstName": user.FirstName})
+            # exists = User.objects.filter(HealthCareNumber=HealthCareNumber).exists()
+            else:
+                return JsonResponse({"error sir": "error"})
+
+            # return JsonResponse({"exists":exists})
+
+        except json.JSONDecodeError :
+            return JsonResponse({"error": "Invalid Json"})
+    return JsonResponse({"error": "Invalid request"}, status=400)
+        

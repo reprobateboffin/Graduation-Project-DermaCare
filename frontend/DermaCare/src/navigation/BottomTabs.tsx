@@ -29,6 +29,7 @@ export type BottomTabParamList = {
   BookAppointment: undefined;
   ContactUs: undefined;
   Profile: undefined;
+  Blogs: undefined;
 };
 
 // Custom Tab Bar Component with animations

@@ -9,14 +9,16 @@ import {
 } from "react-native";
 import { useAuthStore } from "../../store/useAuthStore";
 import AuthHeader from "../../components/Header/AuthHeader";
-
+import { useRoute } from "@react-navigation/native";
 const { height, width } = Dimensions.get("window");
-
 const LoginVerification = ({ navigation }) => {
+  route = useRoute();
+  params = route.params || {};
+  const {healthCardNumber} = params;
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
   // async
   const handleSubmit = () => {
-    navigation.navigate("VerificationCodeLogin");
+    navigation.navigate("VerificationCodeLogin",{healthCardNumber});
 
     // await
     setIsAuthenticated(false); // Önce authentication'ı güncelle

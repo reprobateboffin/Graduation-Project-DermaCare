@@ -11,29 +11,45 @@ import {
 import { Ionicons } from "@expo/vector-icons"; // For icons (install if not already installed)'
 import AuthHeader from "../../components/Header/AuthHeader";
 import WeFoundYou from "./WeFoundYou";
+import { useRoute } from "@react-navigation/native";
 
-// import StepIndicator from "react-native-step-indicator";
-
-// const labels = ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"];
-
-// const customStyles = {
-//   stepIndicatorSize: 20,
-//   currentStepIndicatorSize: 25,
-//   separatorStrokeWidth: 3,
-//   stepStrokeWidth: 2,
-//   stepIndicatorFinishedColor: "green",
-//   stepIndicatorUnFinishedColor: "gray",
-//   separatorFinishedColor: "green",
-//   separatorUnFinishedColor: "gray",
-//   stepIndicatorCurrentColor: "green",
-// };
 
 const { height, width } = Dimensions.get("window"); // Get device dimensions
 
 const ProvideInformation = ({ navigation }) => {
   const realNumber = 123;
-  const [healthCardNumber, setHealthCardNumber] = useState();
+  const [healthCardNumber, setHealthCardNumber] = useState('12345');
+  const handleSubmit = async () => {
+    try {
+      const response = await  fetch('http://192.168.1.106:8000/api/confirm-login-info/',{
+        method: 'POST',
+        headers:{
+          'Content-Type': 'application/json'
+        },
+        body : JSON.stringify({HealthCareNumber : healthCardNumber})
+  
+      });
+  
+      const data = await response.json();
+      if(data.firstName){
+            alert(`Number recognized, Welcome ${data.firstName} !`);
+            navigation.navigate('WeFoundYou', {healthCardNumber})
+          }
+            else{
+              alert("Health Card Not Found, Try Again")
+            }
+  // navigation.navigate('LoginPage')
+        
+      } catch (error) {
+        console.log(error);
+      }
 
+    // if (parseInt(healthCardNumber) == realNumber) {
+    //   navigation.navigate("WeFoundYou");
+    // } else {
+    //   navigation.navigate("WantToRegister"); //
+    // }
+  }
   return (
     <View style={styles.container}>
    
@@ -73,19 +89,16 @@ const ProvideInformation = ({ navigation }) => {
               onChangeText={(text) => /^\d*$/.test(text) ? setHealthCardNumber(text) : null}
               style={styles.textInput}
               placeholder="Enter your information"
+              
               placeholderTextColor="white"
+              // onChangeText={(text) => {setHealthCardNumber(text)}}
+              value={healthCardNumber}
               keyboardType="numeric" // Shows numeric keyboard on focus
 
             />
             <TouchableOpacity
               style={styles.button}
-              onPress={() => {
-                if (parseInt(healthCardNumber) == realNumber) {
-                  navigation.navigate("WeFoundYou");
-                } else {
-                  navigation.navigate("WantToRegister"); //
-                }
-              }}
+              onPress={()=>handleSubmit()}
             >
               <Text style={styles.buttonText}>Submit</Text>
             </TouchableOpacity>

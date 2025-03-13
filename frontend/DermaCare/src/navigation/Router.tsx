@@ -1,7 +1,7 @@
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
 import { useAuthStore } from '../store/useAuthStore';
-
+import { createStackNavigator } from '@react-navigation/stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 // Screens
 import WelcomeScreen from '../screens/Welcome/WelcomeScreen';
 import LoadingScreen from '../screens/Loading/LoadingScreen';
@@ -30,7 +30,7 @@ import EventDetailScreen from '../screens/dashboard/EventDetailScreen';
 import YearlyCalendarScreen from '../screens/dashboard/YearlyCalendarScreen';
 import TestDatePicker from '../screens/auth/TestDatePicker';
 import DummyScreen from '../screens/auth/DummyScreen';
-
+import Blogs from '../screens/SubHeaders/Blogs';
 export type RootStackParamList = {
   Welcome: undefined;
   Loading: undefined;
@@ -58,9 +58,25 @@ export type RootStackParamList = {
   YearlyCalendar: undefined;
   TestDatePicker: undefined;
   DummyScreen: undefined;
+  Blogs: undefined;
+  MainDrawer: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
+
+const Drawer = createDrawerNavigator();
+
+const DrawerNavigator = () => {
+  return (
+    <Drawer.Navigator initialRouteName="HomeScreen">
+      <Drawer.Screen name="Home" component={HomeScreen} />
+      {/* You can add more screens here as needed */}
+    </Drawer.Navigator>
+  );
+};
+
+
+
 
 const Router = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -82,6 +98,9 @@ const Router = () => {
       <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
       <Stack.Screen name="DashboardEventsScreen" component={DashboardEventsScreen} />
       <Stack.Screen name="AIVisitsLanding" component={AIVisitsLanding} />
+      {/* Main Drawer */}
+      <Stack.Screen name="MainDrawer" component={DrawerNavigator} />
+
       <Stack.Screen name="AIVisitsDashboard" component={AIVisitsDashboard} />
       <Stack.Screen name="AIVisitsPage" component={AIVisitsPage} />
       <Stack.Screen name="AIVisitPatient" component={AIVisitPatient} />
@@ -92,6 +111,7 @@ const Router = () => {
       <Stack.Screen name="EventDetail" component={EventDetailScreen} />
       <Stack.Screen name="YearlyCalendar" component={YearlyCalendarScreen} />
       <Stack.Screen name="DummyScreen" component={DummyScreen} />
+      <Stack.Screen name="Blogs" component={Blogs} />
     </Stack.Navigator>
   );
 };

@@ -20,7 +20,7 @@ const VerificationCodeLogin = ({ navigation }) => {
     // await
     setIsAuthenticated(true); // First update authentication
     // Then navigate
-    navigation.navigate("HomeScreen");
+    navigation.navigate("MainTabs");
   };
 
   return (

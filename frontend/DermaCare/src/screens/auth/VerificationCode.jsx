@@ -55,7 +55,7 @@ const VerificationCode = ({ navigation }) => {
       console.log(error);
     }
 
-    navigation.navigate('LoginPage');
+    navigation.navigate('MainTabs');
   };
 
   return (

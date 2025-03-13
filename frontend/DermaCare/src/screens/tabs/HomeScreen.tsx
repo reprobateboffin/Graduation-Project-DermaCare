@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, Dimensions, ScrollView, Linking, Animated } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, Dimensions, ScrollView, Linking, Animated, Pressable } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { BottomTabParamList } from '../../navigation/BottomTabs';
 import { colors } from '../../theme/colors';
@@ -11,16 +11,16 @@ import DoctorCard from '../../components/DoctorCard';
 import ScrollAnimatedView from '../../components/ScrollAnimatedView';
 import { DOCTORS } from '../../data/doctors';
 import AnimatedSection from '../../components/AnimatedSection';
-
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HERO_IMAGE_WIDTH = 522;
 const HERO_IMAGE_HEIGHT = 447;
+
 
 const HomeScreen = () => {
   const navigation = useNavigation<BottomTabNavigationProp<BottomTabParamList>>();
   const scrollY = useRef(new Animated.Value(0)).current;
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
-
+  const route = useRoute();
   const handlePhysicianPress = () => {
     // Navigate to physicians list
   };
@@ -42,6 +42,15 @@ const HomeScreen = () => {
           <BackgroundShape />
         </View>
 
+        {/* //Home and Blogs Sub Headers */}
+        <View style={styles.headersub}>
+  <Pressable>
+    <Text  style={styles.activesubheading}>Home</Text>
+  </Pressable>
+  <Pressable>
+    <Text onPress={()=>navigation.navigate('Blogs')} style={[styles.subheading, route.name=='Blogs'&& styles.activesubheading]}>Blogs</Text>
+  </Pressable>
+</View>
         {/* Header */}
         <AnimatedSection isInitial delay={100} style={styles.header}>
           <View style={styles.profileContainer}>
@@ -320,6 +329,25 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     paddingBottom: 40,
+  },
+  headersub: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 5,
+    marginTop: 30,
+    marginBottom: 0,
+  },
+  subheading: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'black', // Customize text color
+  }, 
+  activesubheading: {
+    color: colors.primary.purple,
+
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 
