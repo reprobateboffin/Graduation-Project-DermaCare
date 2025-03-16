@@ -1,5 +1,6 @@
 import React from 'react';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { View, Text, StyleSheet, SafeAreaView, ImageBackground, Platform, StatusBar } from 'react-native';
 import  colors  from '../../theme/colors';
 
@@ -37,6 +38,8 @@ const HoursScreen = () => {
       </ImageBackground>
     </View>
 =======
+=======
+>>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { colors } from '../../theme/colors';
 
@@ -51,6 +54,9 @@ const HoursScreen = () => {
         <Text style={styles.text}>Hours Page...</Text>
       </View>
     </SafeAreaView>
+<<<<<<< HEAD
+>>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
+=======
 >>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
   );
 };
@@ -58,6 +64,7 @@ const HoursScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+<<<<<<< HEAD
 <<<<<<< HEAD
     backgroundColor: colors.primary.blue,
   },
@@ -109,6 +116,8 @@ const styles = StyleSheet.create({
     opacity: 0.9,
     lineHeight: 19.5,
 =======
+=======
+>>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
     backgroundColor: colors.base.white,
   },
   header: {
@@ -129,6 +138,9 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     color: colors.base.black,
+<<<<<<< HEAD
+>>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
+=======
 >>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
   },
 });

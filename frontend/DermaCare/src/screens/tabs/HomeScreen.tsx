@@ -12,9 +12,13 @@ import ScrollAnimatedView from '../../components/ScrollAnimatedView';
 import { DOCTORS } from '../../data/doctors';
 import AnimatedSection from '../../components/AnimatedSection';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Ionicons } from '@expo/vector-icons';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
+=======
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+>>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
 =======
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 >>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
@@ -51,12 +55,15 @@ const HomeScreen = () => {
         {/* //Home and Blogs Sub Headers */}
         <View style={styles.headersub}>
 <<<<<<< HEAD
+<<<<<<< HEAD
         {/* <View style={styles.container}> */}
       {/* <Ionicons
         name="menu"
         size={32}
         onPress={() => navigation.openDrawer()}
       /> */}
+=======
+>>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
 =======
 >>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
   <Pressable>
@@ -193,7 +200,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
 <<<<<<< HEAD
+<<<<<<< HEAD
     paddingBottom: 0,
+=======
+    paddingBottom: 24,
+>>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
 =======
     paddingBottom: 24,
 >>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd

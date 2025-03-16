@@ -55,9 +55,12 @@ const Blogs : React.FC<BlogScreenProps>  = () => {
     <View style={styles.container}>
                   <View style={styles.headersub}>
 <<<<<<< HEAD
+<<<<<<< HEAD
               <Pressable onPress={()=>navigation.navigate('RegisterVerification')} >
                 <Text style={[styles.subheading, route.name=='HomeScreen'&& styles.activesubheading]}>Drawer</Text>
               </Pressable> 
+=======
+>>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
 =======
 >>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
               <Pressable onPress={()=>navigation.navigate('MainTabs')} >

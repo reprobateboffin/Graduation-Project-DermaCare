@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ImageBackground, Image, TouchableOpacity } from 'react-native';
 import { colors } from '../../theme/colors';
@@ -198,6 +199,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
 =======
+=======
+>>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { colors } from '../../theme/colors';
@@ -239,6 +242,9 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     color: colors.base.black,
+<<<<<<< HEAD
+>>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
+=======
 >>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
   },
 });

@@ -119,6 +119,7 @@ const Router = () => {
 export default Router;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 // import React from "react";
 // import { NavigationContainer } from "@react-navigation/native";
@@ -137,5 +138,7 @@ export default Router;
 // };
 
 // export default Router;
+=======
+>>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
 =======
 >>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
