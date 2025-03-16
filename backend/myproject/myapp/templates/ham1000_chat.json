@@ -1,0 +1,45 @@
+{
+    "akiec": {
+      "description": "Actinic keratosis is a precancerous skin lesion caused by long-term sun exposure.",
+      "causes": "UV radiation, fair skin, weakened immune system.",
+      "symptoms": ["Rough, scaly patch", "Red or pink color", "Crusty surface"],
+      "treatment": "Cryotherapy, topical medications, laser therapy."
+    },
+    "bcc": {
+      "description": "Basal cell carcinoma is a common type of skin cancer that rarely spreads but can damage surrounding tissue.",
+      "causes": "Prolonged sun exposure, fair skin, radiation exposure.",
+      "symptoms": ["Shiny or pearly bump", "Open sore that does not heal", "Red patches"],
+      "treatment": "Surgical removal, radiation therapy, topical treatments."
+    },
+    "bkl": {
+      "description": "Benign keratosis is a non-cancerous skin growth that often appears with age.",
+      "causes": "Aging, sun exposure, genetics.",
+      "symptoms": ["Brown or black waxy spots", "Scaly or rough texture", "Flat or raised growth"],
+      "treatment": "No treatment required, but can be removed for cosmetic reasons."
+    },
+    "df": {
+      "description": "Dermatofibroma is a harmless skin growth that appears as a firm, raised bump.",
+      "causes": "Minor skin injuries, insect bites, genetic predisposition.",
+      "symptoms": ["Small, firm reddish-brown bump", "May be tender when pressed", "Usually found on legs"],
+      "treatment": "No treatment required, but can be surgically removed if bothersome."
+    },
+    "mel": {
+      "description": "Melanoma is an aggressive and deadly type of skin cancer that develops from melanocytes.",
+      "causes": "UV exposure, genetic mutations, multiple sunburns.",
+      "symptoms": ["Irregular moles", "Rapidly growing dark spot", "Color changes in existing moles"],
+      "treatment": "Surgery, immunotherapy, chemotherapy, targeted therapy."
+    },
+    "nv": {
+      "description": "Melanocytic nevus (mole) is a common benign skin growth formed by pigmented cells.",
+      "causes": "Genetics, sun exposure, hormonal changes.",
+      "symptoms": ["Brown or black mole", "Round or oval shape", "Flat or slightly raised"],
+      "treatment": "No treatment required unless it changes in size, color, or shape."
+    },
+    "vasc": {
+      "description": "Vascular lesions include conditions like angiomas and hemangiomas, which are benign blood vessel growths.",
+      "causes": "Congenital conditions, aging, hormonal changes.",
+      "symptoms": ["Red, blue, or purple spots", "Flat or raised growth", "May bleed when scratched"],
+      "treatment": "Laser therapy, cryotherapy, surgical removal if needed."
+    }
+  }
+  
