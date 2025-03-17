@@ -15,6 +15,8 @@ from .serializers import UserSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
+from .models import Appointments
+from .serializers import AppointmentSerializer
 
 # Define class labels
 label_mapping = {
@@ -206,3 +208,24 @@ def confirm_login_info(request):
             return JsonResponse({"error": "Invalid Json"})
     return JsonResponse({"error": "Invalid request"}, status=400)
         
+
+
+@api_view(['GET'])
+def get_appointments(request):
+    appointments = Appointments.objects.all()
+    serializer_data = AppointmentSerializer(appointments,many=True)
+    return Response(serializer_data.data)
+
+@api_view(['POST'])
+def book_appointments(request,pk):
+    try:
+ 
+        appointment = Appointments.objects.get(id=pk)
+        appointment.booked = True
+        appointment.save()
+
+        return Response({"message": "Appointment successfully booked"})
+    except Appointments.DoesNotExist:
+        return Response({"message": "Appointment not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

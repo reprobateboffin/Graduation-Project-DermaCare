@@ -25,9 +25,11 @@
     "expo": "~52.0.37",
     "expo-asset": "^11.0.4",
     "expo-calendar": "^14.0.6",
+    "expo-camera": "~16.0.18",
     "expo-font": "^13.0.4",
     "expo-haptics": "^14.0.1",
     "expo-image": "^2.0.6",
+    "expo-image-manipulator": "~13.0.6",
     "expo-image-picker": "^16.0.6",
     "expo-localization": "^16.0.1",
     "expo-status-bar": "~2.0.1",
@@ -43,15 +45,7 @@
     "react-native-modal": "^13.0.1",
     "react-native-modal-datetime-picker": "15.0.1",
     "react-native-radio-buttons-group": "^3.1.0",
-<<<<<<< HEAD
-<<<<<<< HEAD
     "react-native-reanimated": "~3.16.1",
-=======
-    "react-native-reanimated": "^3.17.1",
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-=======
-    "react-native-reanimated": "^3.17.1",
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
     "react-native-router-flux": "^3.45.0",
     "react-native-safe-area-context": "^5.2.0",
     "react-native-screens": "^4.9.1",

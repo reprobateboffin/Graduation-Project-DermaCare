@@ -1,6 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ImageBackground, Image, TouchableOpacity } from 'react-native';
 import { colors } from '../../theme/colors';
 import { Picker } from "@react-native-picker/picker";
@@ -8,35 +6,57 @@ import { FlatList } from 'react-native-gesture-handler';
 interface Appointments {
   id: string,
   time: string,
-  doctor: string
+  doctor: string,
+  booked: boolean,
+  date: Date,
+  clinicName: string,
 }
 
 const BookAppointmentScreen = () => {
   const [selectedClinic,setSelectedClinic] = useState('Down Town')
-  const [appointments,setAppointments] = useState<Appointments[]>([
-    {
-      id:'1',
-      time: '9:00',
-      doctor: 'John Doe'
-    }, {
-      id:'2',
-      time: '10:00',
-      doctor: 'John Doe'
-    }, {
-      id:'3',
-      time: '11:00',
-      doctor: 'John Doe'
-    }, {
-      id:'4',
-      time: '12:00',
-      doctor: 'John Doe'
-    }, {
-      id:'5',
-      time: '13:00',
-      doctor: 'John Doe'
-    },
-    
-  ])
+  
+  const [appointments1,setAppointments1] = useState<Appointments[]>([]) ;
+  const [appointments2,setAppointments2] = useState<Appointments[]>([]);
+  
+  useEffect(() => {
+    fetch("http://192.168.1.106:8000/api/appointments/")
+      .then((response) => response.json())
+      .then((data) => {
+        setAppointments1(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching appointments:", error);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleAppointmentPress = (id:number) =>{
+      fetch(`http://192.168.1.106:8000/api/book-appointment/${id}/`,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          appointment_id: id,
+        }),
+      })
+      .then((response)=> response.json())
+      .then((data)=>{alert(data.message)
+        setAppointments1((prevAppointments) =>
+          prevAppointments.map((appointment) =>
+            parseInt(appointment.id) === id
+              ? { ...appointment, booked: true }
+              : appointment
+          )
+        );
+        
+        }
+
+      )
+      .then((error)=>{
+console.log("error has occured")      })
+  }
   return (
       <ImageBackground source={require('../../../assets/images/doctor-patient.png')} style={styles.container}>
       <View style={styles.overlay}></View>
@@ -58,11 +78,11 @@ const BookAppointmentScreen = () => {
   </Picker>
   </View>
 
-  <FlatList data={appointments}     
+  <FlatList data={appointments1}     
   keyExtractor={(item)=>item.id}
  renderItem={({item})=>{
-return (
-  <View style={styles.appointmentRow}>
+return !item.booked?
+  (<View style={styles.appointmentRow}>
   {/* ID & Doctor's Name */}
   <Text style={styles.appointmentText}>{item.id}. {item.doctor}</Text>
 
@@ -70,11 +90,30 @@ return (
   <Text style={styles.timeText}>{item.time}</Text>
 
   {/* Book Appointment Button */}
-  <TouchableOpacity style={styles.bookButton}>
+  <TouchableOpacity style={styles.bookButton} onPress={()=>{handleAppointmentPress(Number(item.id))}}>
     <Text style={styles.buttonText}>Book</Text>
   </TouchableOpacity>
-</View>
-)
+</View>)
+:(
+  <View style={styles.appointmentRow}>
+    {/* ID & Doctor's Name with Strikethrough */}
+    <Text style={[styles.appointmentText, styles.strikedThrough]}>
+      {item.id}. {item.doctor}
+    </Text>
+
+    {/* Time with Strikethrough */}
+    <Text style={[styles.timeText, styles.strikedThrough]}>
+      {item.time}
+    </Text>
+
+    {/* If booked, show "Appointment booked" */}
+    <TouchableOpacity
+          style={[styles.bookButton, styles.disabledButton]} // Disabled button style
+          disabled={true} // Disable the button
+        >
+          <Text style={styles.buttonText}>Booked</Text>
+        </TouchableOpacity>  </View>
+);
  }}/>
   <View>
 
@@ -88,40 +127,6 @@ return (
   );
 };
 
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: colors.base.white,
-//   },
-//   overlay: {
-//     ...StyleSheet.absoluteFillObject,
-//     backgroundColor: "#016C9D",
-//     opacity: 0.8,
-//   },
-//   innerContainer: {
-//     flex: 1,
-//     width: '100%',
-//   },
-//   header: {
-//     padding: 16,
-//     backgroundColor: colors.primary.green,
-//   },
-//   title: {
-//     fontSize: 20,
-//     fontWeight: 'bold',
-//     color: colors.base.white,
-//   },
-//   content: {
-//     flex: 1,
-//     padding: 16,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-//   text: {
-//     fontSize: 16,
-//     color: colors.base.black,
-//   },
-// });
 
 const styles = StyleSheet.create({
   container: {
@@ -182,6 +187,13 @@ const styles = StyleSheet.create({
     color: 'white',
     flex: 1, // Pushes time & button to the right
   },
+  strikedThrough: {
+    textDecorationLine: 'line-through',  // Adds the strikethrough line
+    color: 'gray', // Optional: change the color of crossed-out items to gray
+  },
+  disabledButton: {
+    backgroundColor: '#D3D3D3', // Light gray color for the disabled button
+  },
   timeText: {
     fontSize: 16,
     color: 'lightgray',
@@ -198,55 +210,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
     fontWeight: 'bold',
-=======
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
-import { colors } from '../../theme/colors';
-
-const BookAppointmentScreen = () => {
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>BookAppointmentScreen</Text>
-      </View>
-      
-      <View style={styles.content}>
-        <Text style={styles.text}>BookAppointment Page...</Text>
-      </View>
-    </SafeAreaView>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.base.white,
-  },
-  header: {
-    padding: 16,
-    backgroundColor: colors.primary.green,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.base.white,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 16,
-    color: colors.base.black,
-<<<<<<< HEAD
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
   },
 });
 
 export default BookAppointmentScreen; 
+
+function setLoading(arg0: boolean) {
+  throw new Error('Function not implemented.');
+}

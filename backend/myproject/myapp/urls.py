@@ -10,4 +10,6 @@ urlpatterns = [
     path('receive-register-info/',views.receive_register_info,name='receiveRegisterInfo'),
     path('confirm-login-info/',views.confirm_login_info,name='confirmLoginInfo'),
     path('blogs/',views.getBlogs,name='blogs'),
+    path('appointments/',views.get_appointments,name='getAppointments'),
+    path('book-appointment/<int:pk>/',views.book_appointments,name='bookAppointments'),
 ]

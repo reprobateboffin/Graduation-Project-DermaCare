@@ -30,6 +30,8 @@ export type BottomTabParamList = {
   ContactUs: undefined;
   Profile: undefined;
   Blogs: undefined;
+  SkinCancerConcern:undefined;
+  MainTabs: undefined,
 };
 
 // Custom Tab Bar Component with animations

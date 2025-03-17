@@ -11,17 +11,10 @@ import DoctorCard from '../../components/DoctorCard';
 import ScrollAnimatedView from '../../components/ScrollAnimatedView';
 import { DOCTORS } from '../../data/doctors';
 import AnimatedSection from '../../components/AnimatedSection';
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { Ionicons } from '@expo/vector-icons';
+import SubHeader from '../SubHeaders/SubHeader';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-=======
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-=======
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
 const HERO_IMAGE_WIDTH = 522;
 const HERO_IMAGE_HEIGHT = 447;
 
@@ -53,26 +46,16 @@ const HomeScreen = () => {
         </View>
 
         {/* //Home and Blogs Sub Headers */}
-        <View style={styles.headersub}>
-<<<<<<< HEAD
-<<<<<<< HEAD
-        {/* <View style={styles.container}> */}
-      {/* <Ionicons
-        name="menu"
-        size={32}
-        onPress={() => navigation.openDrawer()}
-      /> */}
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
+        {/* <View style={styles.headersub}>
   <Pressable>
     <Text  style={styles.activesubheading}>Home</Text>
   </Pressable>
   <Pressable>
     <Text onPress={()=>navigation.navigate('Blogs')} style={[styles.subheading, route.name=='Blogs'&& styles.activesubheading]}>Blogs</Text>
   </Pressable>
-</View>
+</View> */}
+
+<SubHeader />
         {/* Header */}
         <AnimatedSection isInitial delay={100} style={styles.header}>
           <View style={styles.profileContainer}>
@@ -199,15 +182,7 @@ const styles = StyleSheet.create({
   profileContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-<<<<<<< HEAD
-<<<<<<< HEAD
-    paddingBottom: 0,
-=======
     paddingBottom: 24,
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-=======
-    paddingBottom: 24,
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
   },
   headerContent: {
     width: '100%',

@@ -1,19 +1,9 @@
 import React from 'react';
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { View, Text, StyleSheet, SafeAreaView, ImageBackground, Image } from 'react-native';
-=======
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-=======
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
 import { colors } from '../../theme/colors';
 
 const ContactUsScreen = () => {
   return (
-<<<<<<< HEAD
-<<<<<<< HEAD
     <ImageBackground source={require('../../../assets/images/doctor-patient.png')} style={styles.container}>
  <View style={styles.overlay}></View>
       <SafeAreaView style={styles.innerContainer}>     
@@ -49,30 +39,12 @@ const ContactUsScreen = () => {
 
       </SafeAreaView>
     </ImageBackground>
-=======
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>ContactUsScreen</Text>
-      </View>
-      
-      <View style={styles.content}>
-        <Text style={styles.text}>ContactUs Page...</Text>
-      </View>
-    </SafeAreaView>
-<<<<<<< HEAD
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-<<<<<<< HEAD
-<<<<<<< HEAD
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -159,33 +131,6 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
 
-=======
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-    backgroundColor: colors.base.white,
-  },
-  header: {
-    padding: 16,
-    backgroundColor: colors.primary.green,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.base.white,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 16,
-    color: colors.base.black,
-<<<<<<< HEAD
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
   },
 });
 

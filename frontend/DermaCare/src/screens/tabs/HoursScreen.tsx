@@ -1,6 +1,4 @@
 import React from 'react';
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { View, Text, StyleSheet, SafeAreaView, ImageBackground, Platform, StatusBar } from 'react-native';
 import  colors  from '../../theme/colors';
 
@@ -37,35 +35,12 @@ const HoursScreen = () => {
         </SafeAreaView>
       </ImageBackground>
     </View>
-=======
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
-import { colors } from '../../theme/colors';
-
-const HoursScreen = () => {
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Hours Screen</Text>
-      </View>
-      
-      <View style={styles.content}>
-        <Text style={styles.text}>Hours Page...</Text>
-      </View>
-    </SafeAreaView>
-<<<<<<< HEAD
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-<<<<<<< HEAD
-<<<<<<< HEAD
     backgroundColor: colors.primary.blue,
   },
   safeArea: {
@@ -115,33 +90,6 @@ const styles = StyleSheet.create({
     color: colors.base.white,
     opacity: 0.9,
     lineHeight: 19.5,
-=======
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-    backgroundColor: colors.base.white,
-  },
-  header: {
-    padding: 16,
-    backgroundColor: colors.primary.green,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.base.white,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  text: {
-    fontSize: 16,
-    color: colors.base.black,
-<<<<<<< HEAD
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
   },
 });
 

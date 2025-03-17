@@ -22,3 +22,20 @@ class User(models.Model):
 
     def __str__(self):
         return f"{self.FirstName} {self.LastName}"
+    
+
+
+class Appointments(models.Model):
+    id = models.AutoField(primary_key=True)
+    time = models.TimeField()
+    doctor = models.CharField(max_length=100)
+    booked = models.BooleanField(default=False)
+    date = models.DateField()
+    clinic_name = models.CharField(max_length=100)  # New field
+
+    class Meta:
+        db_table = 'appointments'  # Use the existing MySQL table
+        managed = False
+
+    def __str__(self):
+        return f"{self.doctor} at {self.time}"

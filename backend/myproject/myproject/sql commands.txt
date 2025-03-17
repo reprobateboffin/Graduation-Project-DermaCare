@@ -1,0 +1,62 @@
+CREATE TABLE user (
+         id INT AUTO_INCREMENT PRIMARY KEY,
+          HealthCareNumber VARCHAR(50) UNIQUE,
+         Clinic VARCHAR(100),
+         FirstName VARCHAR(50),
+         LastName VARCHAR(50),
+        DateOfBirth DATE,
+        Email VARCHAR(100) UNIQUE,
+        PhoneNumber VARCHAR(20) UNIQUE,
+        Preference ENUM('Email', 'Phone') DEFAULT 'Email'
+    );
+    //no command because i entered it using form in frontend
+
+    CREATE TABLE appointments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    time TIME,
+    doctor VARCHAR(100),
+    booked BOOLEAN,
+    date DATE
+);
+INSERT INTO appointments (id, time, doctor, booked, date)
+VALUES 
+(1, '09:00', 'Mark Anthony', TRUE, '2025-03-16'),
+(2, '10:00', 'John Doe', TRUE, '2025-03-16'),
+(3, '11:00', 'Jane Smith', FALSE, '2025-03-16'),
+(4, '12:00', 'Dr. Lee', TRUE, '2025-03-16'),
+(5, '13:00', 'Mark Anthony', TRUE, '2025-03-16');
+
+INSERT INTO appointments (id, time, doctor, booked, date)
+VALUES 
+(6, '09:00', 'Sarah Brown', FALSE, '2025-03-17'),
+(7, '10:00', 'James Clark', FALSE, '2025-03-17'),
+(8, '11:00', 'Mark Anthony', FALSE, '2025-03-17'),
+(9, '12:00', 'John Doe', FALSE, '2025-03-17'),
+(10, '13:00', 'Jane Smith', FALSE, '2025-03-17');
+
+-- For March 18, 2025
+INSERT INTO appointments (id, time, doctor, booked, date)
+VALUES 
+(11, '09:00', 'Dr. Lee', FALSE, '2025-03-18'),
+(12, '10:00', 'Sarah Brown', FALSE, '2025-03-18'),
+(13, '11:00', 'James Clark', FALSE, '2025-03-18'),
+(14, '12:00', 'Mark Anthony', FALSE, '2025-03-18'),
+(15, '13:00', 'John Doe', FALSE, '2025-03-18');
+
+-- For March 19, 2025
+INSERT INTO appointments (id, time, doctor, booked, date)
+VALUES 
+(16, '09:00', 'Jane Smith', FALSE, '2025-03-19'),
+(17, '10:00', 'Mark Anthony', FALSE, '2025-03-19'),
+(18, '11:00', 'Sarah Brown', FALSE, '2025-03-19'),
+(19, '12:00', 'John Doe', FALSE, '2025-03-19'),
+(20, '13:00', 'James Clark', FALSE, '2025-03-19');
+
+-- For March 20, 2025
+INSERT INTO appointments (id, time, doctor, booked, date)
+VALUES 
+(21, '09:00', 'Dr. Lee', FALSE, '2025-03-20'),
+(22, '10:00', 'Jane Smith', FALSE, '2025-03-20'),
+(23, '11:00', 'John Doe', FALSE, '2025-03-20'),
+(24, '12:00', 'Mark Anthony', FALSE, '2025-03-20'),
+(25, '13:00', 'Sarah Brown', FALSE, '2025-03-20');

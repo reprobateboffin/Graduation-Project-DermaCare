@@ -31,6 +31,7 @@ import YearlyCalendarScreen from '../screens/dashboard/YearlyCalendarScreen';
 import TestDatePicker from '../screens/auth/TestDatePicker';
 import DummyScreen from '../screens/auth/DummyScreen';
 import Blogs from '../screens/SubHeaders/Blogs';
+import SkinCancerConcern from '../screens/SubHeaders/SkinCancerConcern';
 export type RootStackParamList = {
   Welcome: undefined;
   Loading: undefined;
@@ -60,6 +61,7 @@ export type RootStackParamList = {
   DummyScreen: undefined;
   Blogs: undefined;
   MainDrawer: undefined;
+  SkinCancerConcern: undefined,
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -112,33 +114,10 @@ const Router = () => {
       <Stack.Screen name="YearlyCalendar" component={YearlyCalendarScreen} />
       <Stack.Screen name="DummyScreen" component={DummyScreen} />
       <Stack.Screen name="Blogs" component={Blogs} />
+      <Stack.Screen name="SkinCancerConcern" component={SkinCancerConcern} />
     </Stack.Navigator>
   );
 };
 
 export default Router;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-// import React from "react";
-// import { NavigationContainer } from "@react-navigation/native";
-// import { useAuthStore } from "../store/useAuthStore";
-// import AuthStack from "./AuthStack";
-// import AppStack from "./AppStack";
-
-// const Router = () => {
-//   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
-//   return (
-//     <NavigationContainer>
-//       {isAuthenticated ? <AppStack /> : <AuthStack />}
-//     </NavigationContainer>
-//   );
-// };
-
-// export default Router;
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
-=======
->>>>>>> 4552fdd4648e9ff3d0f2900a1c218803efc7fccd
