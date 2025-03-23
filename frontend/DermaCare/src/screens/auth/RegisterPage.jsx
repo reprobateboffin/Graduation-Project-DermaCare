@@ -3,7 +3,7 @@ import { View, Text, ImageBackground, TextInput, Pressable, StyleSheet, Dimensio
 import Svg from 'react-native-svg';
 import AuthHeader from "../../components/Header/AuthHeader";
 import { Picker } from "@react-native-picker/picker";
-
+import { API_HOME } from './config';
 
 
 const { height, width } = Dimensions.get('window');
@@ -13,6 +13,28 @@ const RegisterPage = ({ navigation }) => {
 const [healthCardNumber, setHealthCardNumber] = useState('1234');
 
 const [selectedClinic,setSelectedClinic] = useState('Down Town')
+
+
+handleSubmit = async () =>{
+  const response = await fetch(`${API_HOME}/api/check-existence/`,{
+    method: "POST",
+    headers:{
+      'Content-Type': 'application/json'
+
+    },
+    body:JSON.stringify({healthCareNumber : healthCardNumber })
+  })
+
+const data = await response.json();
+alert(`User ${data.message}`)
+if(data.message === "Already Exists"){
+  navigation.navigate("MainTabs")
+}
+else if (data.message === "NotRegistered"){
+  navigation.navigate('RegisterPage2', {healthCardNumber,selectedClinic})
+}
+
+}
 
   return (
     <View style={styles.container}>
@@ -70,7 +92,7 @@ const [selectedClinic,setSelectedClinic] = useState('Down Town')
             style={{ marginBottom: 20, padding: 0 }}
             source={require('../../../assets/statusadv.svg')} // Use the path to your SVG file
           />
-          <Pressable style={styles.registerButton} onPress={() => navigation.navigate('RegisterPage2', {healthCardNumber,selectedClinic})}>
+          <Pressable style={styles.registerButton} onPress={() => handleSubmit()}>
             <Text style={styles.registerButtonText}>Next</Text>
           </Pressable>
         </View>

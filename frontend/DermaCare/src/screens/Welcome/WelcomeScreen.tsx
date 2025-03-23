@@ -146,7 +146,7 @@ const WelcomeScreen: React.FC = () => {
           {provider === "patient" && (
             <WelcomeHeader
               title="Hello!"
-              subtitle="Welcome to medical home."
+              subtitle="Welcome to Derma Care."
               titleColor="black"
               subtitleColor="black"
             />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,15 +10,43 @@ import {
 import { useAuthStore } from "../../store/useAuthStore";
 import AuthHeader from "../../components/Header/AuthHeader";
 import { useRoute } from "@react-navigation/native";
+import { API_HOME } from "./config";
 const { height, width } = Dimensions.get("window");
+
 const LoginVerification = ({ navigation }) => {
-  route = useRoute();
-  params = route.params || {};
+  const route = useRoute();
+  const params = route.params || {};
   const {healthCardNumber} = params;
+  const [verificationCode,setVerificationCode] = useState('hi')
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
   // async
-  const handleSubmit = () => {
-    navigation.navigate("VerificationCodeLogin",{healthCardNumber});
+  const handleSubmit = async () => {
+    response = await fetch(`${API_HOME}/api/send-otp/`,{
+       method: "POST",
+    headers:{
+      'Content-Type': 'application/json'
+
+    },
+    body:JSON.stringify({HealthCareNumber : healthCardNumber })
+  })
+  
+    data = await response.json()
+    alert(data.message); 
+    setVerificationCode(data.message)
+    // if (response.ok) {
+    //   alert(data.message); // Display success message
+    //   setVerificationCode(data.message)
+
+    // } else {
+    //   alert(data.error || 'An error occurred');
+    // }   
+    //  setVerificationCode(data.message)
+
+  navigation.navigate("VerificationCodeLogin",{healthCardNumber,verificationCode: data.message});
+  // navigation.navigate("VerificationCodeLogin",{healthCardNumber,verificationCode});
+
+
+
 
     // await
     setIsAuthenticated(false); // Önce authentication'ı güncelle

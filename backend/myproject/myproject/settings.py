@@ -131,6 +131,21 @@ CORS_ALLOWED_ORIGINS = [
      # If you're using Expo for mobile testing
 ]
 
+import environ
+
+env = environ.Env()
+environ.Env.read_env()  # This reads the .env file
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')  # Use the environment variable
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')  # Use the environment variable
+DEFAULT_FROM_EMAIL = env('EMAIL_HOST_USER')
+
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 

@@ -12,16 +12,17 @@ import { Ionicons } from "@expo/vector-icons"; // For icons (install if not alre
 import AuthHeader from "../../components/Header/AuthHeader";
 import WeFoundYou from "./WeFoundYou";
 import { useRoute } from "@react-navigation/native";
-
-
+// import {API_HOME} from '@babel/generator'
+import {API_HOME} from './config'
+// http://192.168.1.106:8000/
 const { height, width } = Dimensions.get("window"); // Get device dimensions
 
 const ProvideInformation = ({ navigation }) => {
   const realNumber = 123;
-  const [healthCardNumber, setHealthCardNumber] = useState('12345');
+  const [healthCardNumber, setHealthCardNumber] = useState('567289');
   const handleSubmit = async () => {
     try {
-      const response = await  fetch('http://192.168.1.106:8000/api/confirm-login-info/',{
+      const response = await  fetch(`${API_HOME}/api/confirm-login-info/`,{
         method: 'POST',
         headers:{
           'Content-Type': 'application/json'

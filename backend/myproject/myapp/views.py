@@ -1,4 +1,5 @@
 import json
+import random
 from django.shortcuts import render
 from .models import User
 import tensorflow as tf
@@ -17,7 +18,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from .models import Appointments
 from .serializers import AppointmentSerializer
-
+from django.core.mail import send_mail
+from django.conf import settings
 # Define class labels
 label_mapping = {
     0: 'nv',
@@ -176,13 +178,14 @@ def receive_register_info(request):
 
     if request.method == "POST":
         print(f"received {request.body}")
-            # data = json.loads(request.body.decode("utf-8"))
-            # message = data.get('firstName','')
-            # messageToShow.append(message)
+        health_care_number = request.data.get("HealthCareNumber","")
+        if User.objects.filter(HealthCareNumber=health_care_number).exists():
+            return Response({"message":"Already Exists"},status=status.HTTP_400_BAD_REQUEST)
+
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response({"message":"Registered Successfully"}, status=status.HTTP_201_CREATED)
             # return JsonResponse({"message": f"Received: {data.get('firstName')} message received"})
         print(f"Validation errors: {serializer.errors}")  # Log the errors
 
@@ -207,7 +210,36 @@ def confirm_login_info(request):
         except json.JSONDecodeError :
             return JsonResponse({"error": "Invalid Json"})
     return JsonResponse({"error": "Invalid request"}, status=400)
-        
+
+
+@csrf_exempt
+
+@csrf_exempt
+def check_existance_HCN(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode("utf-8"))  # Decode request body
+            health_card_number = data.get("healthCareNumber")  # Use `.get()` to prevent KeyError
+            
+            if not health_card_number:  # Check if it's empty
+                return JsonResponse({"error": "healthCareNumber is required"}, status=400)
+
+            # Check if user exists in the database
+            user_exists = User.objects.filter(HealthCareNumber=health_card_number).exists()
+
+            if user_exists:
+                return JsonResponse({"message": "Already Exists"}, status=200)
+            else:
+                return JsonResponse({"message": "NotRegistered"}, status=404)
+
+        except json.JSONDecodeError:  # Catch JSON errors
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+        except Exception as e:
+            print(f"Error: {e}")
+            return JsonResponse({"error": "Server error"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+  
 
 
 @api_view(['GET'])
@@ -229,3 +261,21 @@ def book_appointments(request,pk):
         return Response({"message": "Appointment not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+
+def generate_otp():
+    return str(random.randint(100000, 999999))
+
+@csrf_exempt
+def send_otp_email(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        HealthCareNumber = data.get("HealthCareNumber")
+        user = User.objects.filter(HealthCareNumber=HealthCareNumber).first()
+        user_email = (user.Email)
+        subject = 'Test Email'
+        message = generate_otp()
+        recipient_list = [user_email]  # Replace with a valid email address
+        send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list)
+        return JsonResponse({"message":message})

@@ -48,14 +48,20 @@ const VerificationCode = ({ navigation }) => {
     });
 
     const data = await response.json();
-          alert(`received response is ${data}`);
+          alert(`received response is ${data.message}`);
+          if(data.message==="Already exists"){
+           return navigation.navigate("WeFoundYou")
+          }
+           if(data.message==="Registered Successfully"){
+           return navigation.navigate('MainTabs');
+
+           }
 // navigation.navigate('LoginPage')
       
     } catch (error) {
       console.log(error);
     }
 
-    navigation.navigate('MainTabs');
   };
 
   return (

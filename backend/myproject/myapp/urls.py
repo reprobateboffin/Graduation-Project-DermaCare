@@ -12,4 +12,6 @@ urlpatterns = [
     path('blogs/',views.getBlogs,name='blogs'),
     path('appointments/',views.get_appointments,name='getAppointments'),
     path('book-appointment/<int:pk>/',views.book_appointments,name='bookAppointments'),
+    path('check-existence/',views.check_existance_HCN,name='checkExistence'),
+    path('send-otp/',views.send_otp_email,name='sendOTP'),
 ]

@@ -32,7 +32,7 @@ const BookAppointmentScreen = () => {
   }, []);
 
   const handleAppointmentPress = (id:number) =>{
-      fetch(`http://192.168.1.106:8000/api/book-appointment/${id}/`,{
+      fetch(`http://1.1.17.237:8000/api/book-appointment/${id}/`,{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -12,15 +12,29 @@ import RadioGroup from "react-native-radio-buttons-group";
 import { useAuthStore } from "../../store/useAuthStore";
 import AuthHeader from "../../components/Header/AuthHeader";
 const { height, width } = Dimensions.get("window");
+import { useRoute } from "@react-navigation/native";
 
 const VerificationCodeLogin = ({ navigation }) => {
+    const route = useRoute();
+   const params = route.params || {};
+    const {healthCardNumber,verificationCode} = params;
+    // const {healthCardNumber,verificationCode} = params;
+    const [userCode,setUserCode] = useState('')
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
   //   async
   const handleSubmit = () => {
     // await
+    alert(`user code is ${userCode} and verification code is ${verificationCode}`)
+
     setIsAuthenticated(true); // First update authentication
     // Then navigate
+    // if(userCode == verificationCode){
+    if(userCode == verificationCode){
     navigation.navigate("MainTabs");
+  }
+    else{
+      alert(`wrong code`)
+    }
   };
 
   return (
@@ -52,6 +66,7 @@ const VerificationCodeLogin = ({ navigation }) => {
           <TextInput
             style={styles.input}
             placeholder="acccess code"
+            onChangeText={(text)=>{setUserCode(text)}}
             placeholderTextColor="#ddd"
             // keyboardType="numeric"
           />

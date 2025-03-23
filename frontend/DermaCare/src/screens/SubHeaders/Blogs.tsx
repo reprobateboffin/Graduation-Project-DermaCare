@@ -25,7 +25,7 @@ const Blogs: React.FC<BlogScreenProps> = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://192.168.1.106:8000/api/blogs')
+    fetch('http://192.168.1.106:8000/api/blogs/')
       .then((response) => {
         if (!response.ok) throw new Error('Failed to fetch blogs');
         return response.json();
