@@ -53,7 +53,7 @@ const VerificationCode = ({ navigation }) => {
            return navigation.navigate("WeFoundYou")
           }
            if(data.message==="Registered Successfully"){
-           return navigation.navigate('MainTabs');
+           return navigation.navigate('MainTabs',{healthCardNumber});
 
            }
 // navigation.navigate('LoginPage')

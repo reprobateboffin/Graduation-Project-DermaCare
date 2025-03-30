@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, Dimensions, ScrollView, Linking, Animated, Pressable } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -23,11 +23,16 @@ const HomeScreen = () => {
   const navigation = useNavigation<BottomTabNavigationProp<BottomTabParamList>>();
   const scrollY = useRef(new Animated.Value(0)).current;
   const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
+  const [healthCardNumber,setHealthCardNumber] = useState('')
   const route = useRoute();
+  const token = useAuthStore((store=>store.token))
   const handlePhysicianPress = () => {
     // Navigate to physicians list
   };
-
+useEffect(()=>{
+  console.log('Retreived Token', token)
+  
+},[token])
   return (
     <SafeAreaView style={styles.container}>
       <Animated.ScrollView 
@@ -59,7 +64,7 @@ const HomeScreen = () => {
         {/* Header */}
         <AnimatedSection isInitial delay={100} style={styles.header}>
           <View style={styles.profileContainer}>
-            <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
+            <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile',{healthCardNumber})}>
               <Image 
                 source={require('../../../assets/images/profile-placeholder.png')} 
                 style={styles.profileImage}

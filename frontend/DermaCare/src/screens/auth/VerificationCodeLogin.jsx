@@ -13,6 +13,8 @@ import { useAuthStore } from "../../store/useAuthStore";
 import AuthHeader from "../../components/Header/AuthHeader";
 const { height, width } = Dimensions.get("window");
 import { useRoute } from "@react-navigation/native";
+import { API_HOME } from "./config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const VerificationCodeLogin = ({ navigation }) => {
     const route = useRoute();
@@ -20,8 +22,50 @@ const VerificationCodeLogin = ({ navigation }) => {
     const {healthCardNumber,verificationCode} = params;
     // const {healthCardNumber,verificationCode} = params;
     const [userCode,setUserCode] = useState('')
-  const setIsAuthenticated = useAuthStore((state) => state.setIsAuthenticated);
+  const {setIsAuthenticated,setToken} = useAuthStore();
   //   async
+
+
+const getJWTToken =  async (healthCardNumber,userCode) =>{
+  try {
+    const response = await fetch(`${API_HOME}/api/token/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        healthCardNumber, 
+      }),
+    });
+
+    if (!response.ok) {
+      // If the response is not successful, throw an error
+      throw new Error('Error fetching token');
+    }
+
+    const data = await response.json();
+    alert(data.token)
+    // On success, store JWT token securely
+    const { token } = data; // Assuming token is returned in the response
+    try {
+      await AsyncStorage.setItem('jwt_token', token);
+      setToken(token);
+    } catch (storageError) {
+      console.error("Error storing JWT token:", storageError);
+      alert("Token retrieved but failed to store it locally.");
+      return; // Optionally stop execution here
+    }
+    // Update auth state to logged in
+    setIsAuthenticated(true);
+
+    // Navigate to MainTabs
+    navigation.navigate("MainTabs", { healthCardNumber });
+  } catch (error) {
+    console.error("Error fetching JWT token:", error);
+    alert("There was an error with token retrieval.");
+  }
+}
+
   const handleSubmit = () => {
     // await
     alert(`user code is ${userCode} and verification code is ${verificationCode}`)
@@ -30,7 +74,8 @@ const VerificationCodeLogin = ({ navigation }) => {
     // Then navigate
     // if(userCode == verificationCode){
     if(userCode == verificationCode){
-    navigation.navigate("MainTabs");
+      getJWTToken(healthCardNumber,userCode)
+    // navigation.navigate("MainTabs",{healthCardNumber});
   }
     else{
       alert(`wrong code`)

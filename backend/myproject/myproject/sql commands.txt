@@ -18,45 +18,60 @@ CREATE TABLE user (
     booked BOOLEAN,
     date DATE
 );
-INSERT INTO appointments (id, time, doctor, booked, date)
-VALUES 
-(1, '09:00', 'Mark Anthony', TRUE, '2025-03-16'),
-(2, '10:00', 'John Doe', TRUE, '2025-03-16'),
-(3, '11:00', 'Jane Smith', FALSE, '2025-03-16'),
-(4, '12:00', 'Dr. Lee', TRUE, '2025-03-16'),
-(5, '13:00', 'Mark Anthony', TRUE, '2025-03-16');
 
-INSERT INTO appointments (id, time, doctor, booked, date)
-VALUES 
-(6, '09:00', 'Sarah Brown', FALSE, '2025-03-17'),
-(7, '10:00', 'James Clark', FALSE, '2025-03-17'),
-(8, '11:00', 'Mark Anthony', FALSE, '2025-03-17'),
-(9, '12:00', 'John Doe', FALSE, '2025-03-17'),
-(10, '13:00', 'Jane Smith', FALSE, '2025-03-17');
+ ALTER TABLE appointments
+    -> ADD CONSTRAINT fk_appointments_healthcard
+    -> FOREIGN KEY (healthCardNumber)
+    -> REFERENCES users(HealthCareNumber);
+ERROR 1824 (HY000): Failed to open the referenced table 'users'
+mysql> ALTER TABLE appointments
+    -> ADD CONSTRAINT fk_appointments_healthcard
+    -> FOREIGN KEY (healthCardNumber)
+    -> REFERENCES user(HealthCareNumber);
+INSERT INTO appointments (time, doctor, booked, date, clinic_name, healthCardNumber) VALUES
+('09:00:00', 'Dr. Smith', 0, '2025-04-01', 'Manhattan', NULL),
+('10:00:00', 'Dr. Jones', 0, '2025-04-01', 'Down Town', NULL),
+('11:00:00', 'Dr. Patel', 0, '2025-04-02', 'Manhattan', NULL),
+('13:00:00', 'Dr. Kim', 0, '2025-04-02', 'Down Town', NULL),
+('14:00:00', 'Dr. Brown', 0, '2025-04-03', 'Manhattan', NULL),
+('15:00:00', 'Dr. Davis', 0, '2025-04-03', 'Down Town', NULL),
+('09:30:00', 'Dr. Garcia', 0, '2025-04-04', 'Manhattan', NULL),
+('10:30:00', 'Dr. Wilson', 0, '2025-04-04', 'Down Town',NULL),
+('11:30:00', 'Dr. Taylor', 0, '2025-04-05', 'Manhattan', NULL),
+('13:30:00', 'Dr. Lee', 0, '2025-04-05', 'Down Town', NULL),
+('14:30:00', 'Dr. Clark', 0, '2025-04-06', 'Manhattan', NULL),
+('15:30:00', 'Dr. Adams', 0, '2025-04-06', 'Down Town', NULL),
+('09:00:00', 'Dr. Evans', 0, '2025-04-07', 'Manhattan', NULL),
+('10:00:00', 'Dr. Moore', 0, '2025-04-07', 'Down Town', NULL),
+('11:00:00', 'Dr. Harris', 0, '2025-04-08', 'Manhattan', NULL),
+('13:00:00', 'Dr. Young', 0, '2025-04-08', 'Down Town',NULL),
+('14:00:00', 'Dr. Allen', 0, '2025-04-09', 'Manhattan', NULL),
+('15:00:00', 'Dr. Wright', 0, '2025-04-09', 'Down Town', NULL),
+('09:30:00', 'Dr. Scott', 0, '2025-04-10', 'Manhattan', NULL),
+('10:30:00', 'Dr. Turner', 0, '2025-04-10', 'Down Town', NULL);
 
--- For March 18, 2025
-INSERT INTO appointments (id, time, doctor, booked, date)
-VALUES 
-(11, '09:00', 'Dr. Lee', FALSE, '2025-03-18'),
-(12, '10:00', 'Sarah Brown', FALSE, '2025-03-18'),
-(13, '11:00', 'James Clark', FALSE, '2025-03-18'),
-(14, '12:00', 'Mark Anthony', FALSE, '2025-03-18'),
-(15, '13:00', 'John Doe', FALSE, '2025-03-18');
+mysql> CREATE TRIGGER before_insert_appointments
+    -> BEFORE INSERT ON appointments
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     IF NEW.booked = TRUE AND NEW.healthCardNumber IS NULL THEN
+    ->         SIGNAL SQLSTATE '45000'
+    ->         SET MESSAGE_TEXT = 'healthCardNumber must be provided when booked is true';
+    ->     END IF;
+    -> END;
+    -> //
+Query OK, 0 rows affected (0.02 sec)
 
--- For March 19, 2025
-INSERT INTO appointments (id, time, doctor, booked, date)
-VALUES 
-(16, '09:00', 'Jane Smith', FALSE, '2025-03-19'),
-(17, '10:00', 'Mark Anthony', FALSE, '2025-03-19'),
-(18, '11:00', 'Sarah Brown', FALSE, '2025-03-19'),
-(19, '12:00', 'John Doe', FALSE, '2025-03-19'),
-(20, '13:00', 'James Clark', FALSE, '2025-03-19');
+mysql>
+mysql> CREATE TRIGGER before_update_appointments
+    -> BEFORE UPDATE ON appointments
+    -> FOR EACH ROW
+    -> BEGIN
+    ->     IF NEW.booked = TRUE AND NEW.healthCardNumber IS NULL THEN
+    ->         SIGNAL SQLSTATE '45000'
+    ->         SET MESSAGE_TEXT = 'healthCardNumber must be provided when booked is true';
+    ->     END IF;
+    -> END;
 
--- For March 20, 2025
-INSERT INTO appointments (id, time, doctor, booked, date)
-VALUES 
-(21, '09:00', 'Dr. Lee', FALSE, '2025-03-20'),
-(22, '10:00', 'Jane Smith', FALSE, '2025-03-20'),
-(23, '11:00', 'John Doe', FALSE, '2025-03-20'),
-(24, '12:00', 'Mark Anthony', FALSE, '2025-03-20'),
-(25, '13:00', 'Sarah Brown', FALSE, '2025-03-20');
+DROP TRIGGER IF EXISTS before_insert_appointments;
+DROP TRIGGER IF EXISTS before_update_appointments;

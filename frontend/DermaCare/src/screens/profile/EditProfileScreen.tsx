@@ -1,20 +1,96 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, TextInput } from 'react-native';
 import { colors } from '../../theme/colors';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/Router';
 import * as ImagePicker from 'expo-image-picker';
+import { BottomTabParamList } from '../../navigation/BottomTabs';
+import { API_HOME } from '../auth/config';
+// import UploadProfilePicture from './UploadProfilePicture';
 
+
+interface InputFieldProps {
+  label: string;
+  value?: string;
+  onChangeText?: (text: string) => void; // Accept onChangeText as a prop
+}
 interface EditProfileScreenProps {
   navigation: StackNavigationProp<RootStackParamList>;
 }
+// interface PersonalInfo {  
+//   HealthCareNumber: string;
 
+//   FirstName: string;
+//   LastName: string;
+//   DateOfBirth: string;
+//   Email: string;
+//   PhoneNumber: string;
+//   Preference:string;
+  
+// }
+
+// const PERSONAL_INFO: PersonalInfo = {
+//   FirstName: "Santiago",
+//   LastName: "Silva",
+//   HealthCareNumber: "12",
+//   DateOfBirth: "2001/01/18",
+  
+//   PhoneNumber: "306 (123) 4567",
+//   Email: "santiago@pgrminc.com",
+//   Preference: "Phone"
+// };
+type ProfileScreenRouteProp = RouteProp<RootStackParamList, 'EditProfile'>;
+// interface InputFieldProps {
+//   label: string;
+//   value?: string;
+// }
 const EditProfileScreen: React.FC<EditProfileScreenProps> = () => {
+  const route = useRoute<ProfileScreenRouteProp>(); // Type the route
+    const { healthCardNumber,firstName,lastName, dOB,email,phoneNumber,Clinic,preference } = route.params || {}; 
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [image, setImage] = React.useState<string | null>(null);
+  // const [firstName,setFirstName] = useState('')
+  // const [lastName,setLastName] = useState('')
+  // const [email,setEmail] = useState('')
+  // const [phone,setPhone] = useState('')
+  // const [dOB,setDOB] = useState('')
+  // const [preference,setPreference] = useState('')
+  useEffect(()=>{
+  },[])
 
+    // const response = fetch(`${API_HOME}/api/profile/`,{
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     healthCardNumber: healthCardNumber,
+    //   }),
+    // })
+    // .then((response)=>response.json())
+    // .then((data)=>{
+    //   setFirstName(data.FirstName)
+    //   setLastName(data.LastName)
+    //   setDOB(data.DateOfBirth)
+    //   setEmail(data.Email)
+    //   setPhone(data.PhoneNumber)
+    //   console.log(data);
+     
+    // })
+    
+    const [updatedHealthCardNumber, setUpdatedHealthCardNumber] = useState(healthCardNumber);
+    const [updatedFirstName, setUpdatedFirstName] = useState(firstName);
+  const [updatedLastName, setUpdatedLastName] = useState(lastName);
+  const [updatedDOB, setUpdatedDOB] = useState(dOB);
+  const [updatedEmail, setUpdatedEmail] = useState(email);
+  const [updatedClinic, setUpdatedClinic] = useState(Clinic);
+
+  const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState(phoneNumber);
+  const [updatedPreference, setUpdatedPreference] = useState(preference);
+    
+  // const [healthCardNumber,setHealthCardNumber] = useState()
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     
@@ -22,6 +98,9 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = () => {
       alert('Permission required to access photos!');
       return;
     }
+
+
+
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -34,6 +113,36 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = () => {
       setImage(result.assets[0].uri);
     }
   };
+
+const dataToUpdate= {
+  HealthCareNumber:updatedHealthCardNumber,
+  Clinic: updatedClinic,
+  FirstName:updatedFirstName,
+  LastName: updatedLastName,
+  DateOfBirth:updatedDOB,
+  Email: updatedEmail,
+  PhoneNumber: updatedPhoneNumber,
+  Preference: updatedPreference
+}
+  const handleSubmit = async() =>{
+    const response = await fetch(`${API_HOME}/api/update-user/`,{
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify( dataToUpdate ),
+    })
+    .then((response)=>response.json())
+    .then((data)=>{
+
+      console.log(data);
+      console.log(updatedHealthCardNumber);
+
+    })
+    navigation.goBack()
+
+
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -50,10 +159,11 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = () => {
         {/* Profile Image */}
         <View style={styles.profileImageContainer}>
           <TouchableOpacity onPress={pickImage} style={styles.imageWrapper}>
-            <Image 
+           <Image 
               source={image ? { uri: image } : require('../../../assets/images/profile-placeholder.png')} 
               style={styles.profileImage}
-            />
+            /> 
+            {/* <UploadProfilePicture /> */}
             <View style={styles.editImageButton}>
               <Ionicons name="camera" size={20} color={colors.base.white} />
             </View>
@@ -61,23 +171,19 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = () => {
         </View>
 
         {/* Form Fields */}
-        <View style={styles.form}>
-          <InputField label="First name" />
-          <InputField label="Middle name (Optional)" />
-          <InputField label="Last name" />
-          <InputField label="Sex" />
-          <InputField label="Pronouns" />
-          <InputField label="Date of birth" />
-          <InputField label="Health card number" />
-          <Text style={styles.sectionTitle}>Contact information</Text>
-          <InputField label="Email" />
-          <InputField label="Phone" />
-        </View>
-
+        {/* <View style={styles.form}> */}
+        <InputField label="health card number" value={healthCardNumber} onChangeText={setUpdatedHealthCardNumber} />
+        <InputField label="First Name" value={updatedFirstName} onChangeText={setUpdatedFirstName} />
+        <InputField label="Last Name" value={updatedLastName} onChangeText={setUpdatedLastName} />
+        <InputField label="Date of Birth" value={updatedDOB} onChangeText={setUpdatedDOB} />
+        <InputField label="Email" value={updatedEmail} onChangeText={setUpdatedEmail} />
+        <InputField label="Phone Number" value={updatedPhoneNumber} onChangeText={setUpdatedPhoneNumber} />
+        <InputField label="Preference" value={updatedPreference} onChangeText={setUpdatedPreference} />
+{/* navigation.goBack() */}
         {/* Done Button */}
         <TouchableOpacity 
           style={styles.doneButton}
-          onPress={() => navigation.goBack()}
+          onPress={handleSubmit}
         >
           <Text style={styles.doneButtonText}>Done</Text>
         </TouchableOpacity>
@@ -86,18 +192,16 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = () => {
   );
 };
 
-interface InputFieldProps {
-  label: string;
-  value?: string;
-}
 
-const InputField: React.FC<InputFieldProps> = ({ label, value }) => (
+
+const InputField: React.FC<InputFieldProps> = ({ label, value, onChangeText}) => (
   <View style={styles.inputContainer}>
     <Text style={styles.inputLabel}>{label}</Text>
     <TextInput
       style={styles.input}
       value={value}
       placeholder=""
+       onChangeText={onChangeText} // Add onChangeText prop here
     />
   </View>
 );
@@ -132,6 +236,16 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40,
     gap: 16,
+  },
+  input: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    marginBottom: 15,
+    backgroundColor: '#fff',
   },
   profileImageContainer: {
     alignItems: 'center',
@@ -171,14 +285,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.base.black,
   },
-  input: {
-    width: '100%',
-    height: 48,
-    backgroundColor: colors.base.lightGray,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-  },
+  // input: {
+  //   width: '100%',
+  //   height: 48,
+  //   backgroundColor: colors.base.lightGray,
+  //   borderRadius: 8,
+  //   paddingHorizontal: 16,
+  //   fontSize: 16,
+  // },
   doneButton: {
     backgroundColor: colors.primary.green,
     paddingVertical: 10,
@@ -198,3 +312,7 @@ const styles = StyleSheet.create({
 });
 
 export default EditProfileScreen; 
+
+function setImage(uri: string) {
+  throw new Error('Function not implemented.');
+}

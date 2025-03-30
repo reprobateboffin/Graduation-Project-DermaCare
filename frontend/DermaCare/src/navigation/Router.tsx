@@ -32,11 +32,13 @@ import TestDatePicker from '../screens/auth/TestDatePicker';
 import DummyScreen from '../screens/auth/DummyScreen';
 import Blogs from '../screens/SubHeaders/Blogs';
 import SkinCancerConcern from '../screens/SubHeaders/SkinCancerConcern';
+import { PersonalInfo } from '../screens/tabs/ProfileScreen';
+
+
 export type RootStackParamList = {
   Welcome: undefined;
   Loading: undefined;
-  MainTabs: undefined;
-  EditProfile: undefined;
+  MainTabs: { healthCardNumber?: string }; // Allow healthCardNumber as an optional param  EditProfile: undefined;
   RegisterPage: undefined;
   RegisterPage2: undefined;
   RegisterVerification: undefined;
@@ -62,6 +64,7 @@ export type RootStackParamList = {
   Blogs: undefined;
   MainDrawer: undefined;
   SkinCancerConcern: undefined,
+  EditProfile: {healthCardNumber:string,firstName:string,lastName:string,dOB:string,email:string,phoneNumber:string,Clinic:string,preference:string},
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -106,7 +109,7 @@ const Router = () => {
       <Stack.Screen name="AIVisitsDashboard" component={AIVisitsDashboard} />
       <Stack.Screen name="AIVisitsPage" component={AIVisitsPage} />
       <Stack.Screen name="AIVisitPatient" component={AIVisitPatient} />
-      <Stack.Screen name="MainTabs" component={BottomTabs} />
+      <Stack.Screen name="MainTabs"   component={BottomTabs} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name='LoginPage' component={LoginPage} />
       <Stack.Screen name="LoginSwitchVerification" component={LoginSwitchVerification} />

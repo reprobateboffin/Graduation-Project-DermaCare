@@ -1,7 +1,11 @@
 from django.urls import path
 from . import views
+from django.conf.urls.static import static
+from django.conf import settings
+
 
 urlpatterns = [
+    
     path('', views.home, name='home'),
     path('home/', views.home, name='home'),
     path('hello/', views.hello, name='hello'),
@@ -14,4 +18,12 @@ urlpatterns = [
     path('book-appointment/<int:pk>/',views.book_appointments,name='bookAppointments'),
     path('check-existence/',views.check_existance_HCN,name='checkExistence'),
     path('send-otp/',views.send_otp_email,name='sendOTP'),
+    path('token/', views.get_token, name='get-token'),  # Token generation endpoin
+    path('profile/', views.get_profile_info, name='get-profile'),  
+    path('user-info/', views.get_user_info, name='get-user-info'),  
+    path('update-user/', views.update_user, name='update-user-info'),  
+    path("upload-pfp/", views.upload_profile_picture, name="upload-profile-picture"),
+
+
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

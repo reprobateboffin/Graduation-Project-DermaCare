@@ -1,33 +1,82 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { colors } from '../../theme/colors';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/Router';
+import { API_HOME } from '../auth/config';
+import { useRoute } from '@react-navigation/native';
+import { BottomTabParamList } from '../../navigation/BottomTabs';
+export interface PersonalInfo {  
+  HealthCareNumber: string;
 
-interface PersonalInfo {
-  name: string;
-  healthCardNumber: string;
-  dateOfBirth: string;
-  sex: string;
-  pronouns: string;
-  phone: string;
-  email: string;
+  FirstName: string;
+  LastName: string;
+  DateOfBirth: string;
+  Email: string;
+  Clinic: string,
+  PhoneNumber: string;
+  Preference:string;
+  
 }
 
 const PERSONAL_INFO: PersonalInfo = {
-  name: "Santiago Silva",
-  healthCardNumber: "123456789",
-  dateOfBirth: "2001/01/18",
-  sex: "Male",
-  pronouns: "He/Him",
-  phone: "306 (123) 4567",
-  email: "santiago@pgrminc.com"
+  FirstName: "Santiago",
+  LastName: "Silva",
+  HealthCareNumber: "12",
+  DateOfBirth: "2001/01/18",
+  Clinic:"Manhattan",
+  PhoneNumber: "306 (123) 4567",
+  Email: "santiago@pgrminc.com",
+  Preference: "Phone"
 };
-
+type ProfileScreenRouteProp = RouteProp<BottomTabParamList, 'Profile'>;
 const ProfileScreen = () => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const route = useRoute<ProfileScreenRouteProp>(); // Type the route
+  const { healthCardNumber } = route.params || {}; 
+   const [lastName,setLastName] = useState(PERSONAL_INFO.LastName)
+   const [email,setEmail] = useState(PERSONAL_INFO.Email)
+   const [phone,setPhone] = useState(PERSONAL_INFO.PhoneNumber)
+   const [dOB,setDOB] = useState(PERSONAL_INFO.DateOfBirth)
+   const [preference,setPreference] = useState(PERSONAL_INFO.Preference)
+ 
+ 
+  const [profileInfo, setProfileInfo] = useState<PersonalInfo>(PERSONAL_INFO||null); // Use null initially
+  useEffect(  ()=>{
+
+    const response = fetch(`${API_HOME}/api/profile/`,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        healthCardNumber: healthCardNumber,
+      }),
+    })
+    .then((response)=>response.json())
+    .then((data)=>{
+setProfileInfo(data);
+    })
+
+
+
+  },[])
+  // const displayInfo =PERSONAL_INFO;
+  const displayInfo = profileInfo || PERSONAL_INFO;
+  const [firstName,setFirstName] = useState(displayInfo.FirstName)
+  const params = {
+    healthCardNumber: healthCardNumber,
+    firstName: displayInfo.FirstName,
+    lastName: displayInfo.LastName,
+    dOB: displayInfo.DateOfBirth,
+    email: displayInfo.Email,
+    Clinic: displayInfo.Clinic,
+    phoneNumber: displayInfo.PhoneNumber,
+    preference: displayInfo.Preference
+  };
+  console.log('debugging with params:',params);
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -39,23 +88,23 @@ const ProfileScreen = () => {
             source={require('../../../assets/images/profile-placeholder.png')} 
             style={styles.profileImage}
           />
-          <Text style={styles.name}>{PERSONAL_INFO.name}</Text>
+          <Text style={styles.name}>{displayInfo.FirstName}</Text>
         </View>
 
         {/* Info Card */}
         <View style={styles.infoCard}>
-          <InfoItem label="Health card number" value={PERSONAL_INFO.healthCardNumber} />
-          <InfoItem label="Date of birth" value={PERSONAL_INFO.dateOfBirth} />
-          <InfoItem label="Sex" value={PERSONAL_INFO.sex} />
-          <InfoItem label="Pronouns" value={PERSONAL_INFO.pronouns} />
-          <InfoItem label="Phone" value={PERSONAL_INFO.phone} />
-          <InfoItem label="Email" value={PERSONAL_INFO.email} />
+          <InfoItem label="Health card number" value={displayInfo.HealthCareNumber} />
+          <InfoItem label="Date of birth" value={displayInfo.DateOfBirth} />
+          {/* <InfoItem label="Sex" value={PERSONAL_INFO.sex} /> */}
+          {/* <InfoItem label="Pronouns" value={PERSONAL_INFO.pronouns} /> */}
+          <InfoItem label="Phone" value={displayInfo.PhoneNumber} />
+          <InfoItem label="Email" value={displayInfo.Email} />
         </View>
 
         {/* Edit Button */}
         <TouchableOpacity 
           style={styles.editButton}
-          onPress={() => navigation.navigate('EditProfile')}
+          onPress={() => navigation.navigate('EditProfile',params)}
         >
           <Text style={styles.editButtonText}>Edit</Text>
         </TouchableOpacity>

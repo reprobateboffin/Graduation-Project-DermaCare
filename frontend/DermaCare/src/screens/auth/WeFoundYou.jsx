@@ -16,7 +16,7 @@ import { useRoute } from "@react-navigation/native";
 const { height, width } = Dimensions.get("window");
 
 const WeFoundYou = ({ navigation }) => {
-  route = useRoute()
+ const  route = useRoute()
   
   const [loading, setLoading] = useState(true);
   const [showContent, setShowContent] = useState(false);
@@ -28,13 +28,13 @@ const {healthCardNumber} = route.params || {};
   useEffect(() => {
     const fadeIn = Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 1000,
+      duration: 100,
       useNativeDriver: true,
     });
   
     const fadeOut = Animated.timing(fadeAnim, {
       toValue: 0,
-      duration: 1000,
+      duration: 100,
       useNativeDriver: true,
     });
   
@@ -43,12 +43,12 @@ const {healthCardNumber} = route.params || {};
       setShowContent(true);
       setCurrentStep(3);
       fadeIn.start();
-    }, 2000);
+    }, 20);
   
     const navigateTimer = setTimeout(() => {
       // fadeOut.start(() => navigation.navigate("LoginVerification"));
       fadeOut.start(() => navigation.navigate("LoginVerification",{healthCardNumber}));
-    }, 5000);
+    }, 500);
   
     return () => {
       clearTimeout(showContentTimer);

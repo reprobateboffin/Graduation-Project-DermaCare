@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import type { BottomTabBarProps, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import colors from '../theme/colors';
@@ -21,14 +21,15 @@ import HoursScreen from '../screens/tabs/HoursScreen';
 import BookAppointmentScreen from '../screens/tabs/BookAppointmentScreen';
 import ContactUsScreen from '../screens/tabs/ContactUsScreen';
 import ProfileScreen from '../screens/tabs/ProfileScreen';
-
+import { RouteProp, useRoute } from '@react-navigation/native';
+import {RootStackParamList} from './Router'
 // Type definitions for tab navigation
 export type BottomTabParamList = {
   Home: undefined;
   Hours: undefined;
-  BookAppointment: undefined;
+  BookAppointment: {healthCardNumber:string};
   ContactUs: undefined;
-  Profile: undefined;
+  Profile:  {healthCardNumber:string};
   Blogs: undefined;
   SkinCancerConcern:undefined;
   MainTabs: undefined,
@@ -220,8 +221,16 @@ function getIconName(routeName: string): keyof typeof Ionicons.glyphMap {
 // 3) Bottom Tabs Navigator
 // ---------------------
 const Tab = createBottomTabNavigator<BottomTabParamList>();
+interface BottomTabsProps {
+  route?: RouteProp<RootStackParamList, 'MainTabs'>; // Type based on stack, not tabs
+}
 
-export default function BottomTabs() {
+
+
+export default function BottomTabs({route}:BottomTabsProps) {
+  const params = route?.params || {};
+  const { healthCardNumber } = params;
+  console.log("healthCardNumber in BottomTabs:", healthCardNumber); // Add this log
   return (
     <Tab.Navigator
       screenOptions={{
@@ -235,13 +244,17 @@ export default function BottomTabs() {
         name="BookAppointment"
         component={BookAppointmentScreen}
         options={{ tabBarLabel: 'Book Appointment' }}
+        initialParams={{healthCardNumber}}
       />
       <Tab.Screen
         name="ContactUs"
         component={ContactUsScreen}
         options={{ tabBarLabel: 'Contact us' }}
       />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Profile"
+       component={ProfileScreen}
+      initialParams={{healthCardNumber}}
+      />
     </Tab.Navigator>
   );
 }

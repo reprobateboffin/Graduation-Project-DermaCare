@@ -1,5 +1,6 @@
 import json
 import random
+from venv import logger
 from django.shortcuts import render
 from .models import User
 import tensorflow as tf
@@ -20,6 +21,10 @@ from .models import Appointments
 from .serializers import AppointmentSerializer
 from django.core.mail import send_mail
 from django.conf import settings
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 # Define class labels
 label_mapping = {
     0: 'nv',
@@ -212,7 +217,6 @@ def confirm_login_info(request):
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
-@csrf_exempt
 
 @csrf_exempt
 def check_existance_HCN(request):
@@ -246,23 +250,53 @@ def check_existance_HCN(request):
 def get_appointments(request):
     appointments = Appointments.objects.all()
     serializer_data = AppointmentSerializer(appointments,many=True)
+    print(serializer_data)
     return Response(serializer_data.data)
+
+
+@csrf_exempt
+@api_view(['POST'])
+def get_profile_info(request):
+    try:
+        data = request.data  # Use DRF's request parser
+        health_card_number = data.get('healthCardNumber')
+
+        if not health_card_number:
+            return Response({'error': 'Health card number is required'}, status=400)
+
+        user = User.objects.filter(HealthCareNumber=health_card_number).first()  # Use filter() + first() to avoid exceptions
+
+        if not user:
+            return Response({'error': 'User not found'}, status=404)
+
+        serializer = UserSerializer(user)  # No need for `many=True` since only one object is returned
+        return Response(serializer.data)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+
 
 @api_view(['POST'])
 def book_appointments(request,pk):
     try:
- 
+        data = json.loads(request.body.decode("utf-8"))
+        health_card_number = data.get('healthCardNumber')
+        user = User.objects.get(HealthCareNumber=health_card_number)
+
+        print(health_card_number)
+
         appointment = Appointments.objects.get(id=pk)
+        appointment.healthCardNumber = user
         appointment.booked = True
+
         appointment.save()
 
         return Response({"message": "Appointment successfully booked"})
     except Appointments.DoesNotExist:
         return Response({"message": "Appointment not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
+        logger.error(f"Error occurred: {str(e)}")  # Log the error message
         return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-
 
 def generate_otp():
     return str(random.randint(100000, 999999))
@@ -279,3 +313,71 @@ def send_otp_email(request):
         recipient_list = [user_email]  # Replace with a valid email address
         send_mail(subject, message, settings.EMAIL_HOST_USER, recipient_list)
         return JsonResponse({"message":message})
+    
+
+@api_view(['POST'])
+def get_token(request):
+    health_card_number = request.data.get('healthCardNumber')
+
+    if not health_card_number:
+        return Response({"error": "Health card number is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Find the user by their health card number
+        user = User.objects.get(HealthCareNumber=health_card_number)
+        
+        # Generate the JWT token for the user
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        # Return the token as part of the resptry:        #%20Find%20the%20user%20by%20their%20health%20card%20number%20%20%20%20%20%20%20%20user%20=%20User.objects.get(health_card_number=health_card_number)%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20#%20Generate%20the%20JWT%20token%20for%20the%20user%20%20%20%20%20%20%20%20refresh%20=%20RefreshToken.for_user(user)%20%20%20%20%20%20%20%20access_token%20=%20str(refresh.access_token)%20%20%20%20%20%20%20%20#%20Return%20the%20token%20as%20part%20of%20the%20response%20%20%20%20%20%20%20%20return%20Response({'token':%20access_token},%20status=status.HTTP_200_OK)%20%20%20%20except%20User.DoesNotExist:%20%20%20%20%20%20%20%20return%20Response({'error':%20'User%20with%20provided%20health%20card%20number%20not%20found'},%20status=status.HTTP_400_BAD_REQUEST)onse
+        return Response({'token': access_token}, status=status.HTTP_200_OK)
+
+    except User.DoesNotExist:
+        return Response({'error': 'User with provided health card number not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+
+def get_user_info(request):
+    try:
+        data = request.data
+        healthCardNumber = data.get('healthCardNumber')
+        if not healthCardNumber:
+            return Response({"error":"cant find number"},status=status.HTTP_400_BAD_REQUEST)
+        user = User.objects.filter(HealthCareNumber=healthCardNumber).first()
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
+
+    except Exception as e:
+        return Response({"error":"an error as occured"}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+
+@csrf_exempt
+def update_user(request):
+    if request.method == "PUT":
+        try:
+            data = json.loads(request.body)
+            health_card_number = data.get("HealthCareNumber")
+            print(health_card_number)
+            try:
+                user = User.objects.get(HealthCareNumber=health_card_number)
+                serializer = UserSerializer(user, data=data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return JsonResponse(serializer.data, status=200)
+                return JsonResponse(serializer.errors, status=400)
+            except User.DoesNotExist:
+                return JsonResponse({"error": "User not found"}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+@api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+def upload_profile_picture(request):
+    user_profile = request.user.userprofile
+    user_profile.profile_picture = request.FILES["profile_picture"]
+    user_profile.save()
+    return Response({"message": "Profile picture uploaded successfully", "image_url": user_profile.profile_picture.url})
