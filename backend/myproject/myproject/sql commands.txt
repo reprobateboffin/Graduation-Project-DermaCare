@@ -9,6 +9,10 @@ CREATE TABLE user (
         PhoneNumber VARCHAR(20) UNIQUE,
         Preference ENUM('Email', 'Phone') DEFAULT 'Email'
     );
+    ALTER TABLE user MODIFY id INT;  -- Remove AUTO_INCREMENT
+ALTER TABLE user DROP PRIMARY KEY;  -- Drop existing primary key
+ALTER TABLE user ADD PRIMARY KEY (HealthCareNumber);  -- Set new primary key
+
     //no command because i entered it using form in frontend
 
     CREATE TABLE appointments (
@@ -75,3 +79,59 @@ mysql> CREATE TRIGGER before_update_appointments
 
 DROP TRIGGER IF EXISTS before_insert_appointments;
 DROP TRIGGER IF EXISTS before_update_appointments;
+
+
+CREATE TABLE Products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(100),
+    quantity INT,
+    image VARCHAR(100)  
+);
+INSERT INTO Products (name, description, quantity, image)
+VALUES 
+('Cleanser strawberry', 'very effective and natural', 25, 'http://http://192.168.1.106:8000/media/products/strawberry_clnsr.jpg'),
+('almond cleanser', 'Genuine product', 40, 'http://http://192.168.1.106:8000/media/products/almond_clnsr.jpg'),
+('Orange Cleanser', 'Good for skin', 18, 'http://http://192.168.1.106:8000/media/products/orange_clnsr.jpg'),
+('Bluetooth Speaker', 'Portable wireless speaker', 30, 'products/speaker.jpg'),
+('Sunglasses Pro', 'UV400 polarized sunglasses', 50, 'products/sunglasses.jpg');
+
+
+INSERT INTO Products (name, description, quantity, image, serialNumber, type, price)
+VALUES
+    -- Serum products (type: Serum, price: 4)
+    ('Cerum Oil', 'Hydrating oil-based serum', 10, 'products/oil_cerum.jpeg', 'S1', 'Serum', 4),
+    ('Vitamin C Cerum', 'Brightening vitamin C serum', 20, 'products/vitaminc_cerum.jpeg', 'S2', 'Serum', 4),
+    ('Cerum Glow', 'Glow-enhancing serum', 30, 'products/glow_cerum.jpg', 'S3', 'Serum', 4),
+    
+    -- Sunscreen products (type: Sunscreen, price: 5)
+    ('Sunscreen SPF 50', 'High-protection SPF 50', 10, 'media/products/spf50_sunscreen.jpeg', 'SC1', 'Sunscreen', 5),
+    ('Mineral Sunscreen', 'Mineral-based sunscreen', 20, 'media/products/mineral_sunscreen.jpeg', 'SC2', 'Sunscreen', 5),
+    ('Sunscreen Light', 'Lightweight SPF protection', 30, 'media/products/lite_sunscreen.jpeg', 'SC3', 'Sunscreen', 5);
+
+
+
+    
+mysql> CREATE TABLE cart_items (
+    ->     id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     cart_id VARCHAR(255),
+    ->     product_id VARCHAR(255),
+    ->     quantity INT UNSIGNED DEFAULT 1,
+    ->     UNIQUE KEY unique_cart_product (cart_id, product_id),
+    ->     FOREIGN KEY (cart_id) REFERENCES user_carts(HealthCareNumber) ON DELETE CASCADE,
+    ->     FOREIGN KEY (product_id) REFERENCES Products(serialNumber) ON DELETE CASCADE
+    -> );
+ERROR 6125 (HY000): Failed to add the foreign key constraint. Missing unique key for constraint 'cart_items_ibfk_2' in the referenced table 'products'
+mysql> ALTER TABLE Products ADD UNIQUE (serialNumber);
+Query OK, 0 rows affected (0.09 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE TABLE cart_items (
+    ->     id INT AUTO_INCREMENT PRIMARY KEY,
+    ->     cart_id VARCHAR(255),
+    ->     product_id VARCHAR(255),
+    ->     quantity INT UNSIGNED DEFAULT 1,
+    ->     UNIQUE KEY unique_cart_product (cart_id, product_id),
+    ->     FOREIGN KEY (cart_id) REFERENCES user_carts(HealthCareNumber) ON DELETE CASCADE,
+    ->     FOREIGN KEY (product_id) REFERENCES Products(serialNumber) ON DELETE CASCADE
+    -> );

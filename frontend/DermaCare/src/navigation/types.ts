@@ -10,6 +10,8 @@ export type RootStackParamList = {
   RegisterVerification: undefined;
   VerificationCode: undefined;
   WantToRegister: undefined;
+  BookmarkedBlogs: undefined;
+  BlogDetails: {title: string, image_url: string, subText: string, body: string};
   DashboardScreen: undefined;
   DashboardEventsScreen: { selectedDate?: string };
   HomeScreen: undefined;
@@ -25,6 +27,13 @@ export type RootStackParamList = {
   AIVisitPatient: { id: string };
   EventDetail: { event: Event };
   YearlyCalendar: undefined;
+  Cart: {healthCardNumber:string};
+  EnterCreditCardScreen: {healthCardNumber: string;
+    serialNumber: string;
+    price: string;
+    name: string;
+    quantity: string;
+  };
 };
 
 export type BottomTabParamList = {

@@ -31,9 +31,13 @@ import YearlyCalendarScreen from '../screens/dashboard/YearlyCalendarScreen';
 import TestDatePicker from '../screens/auth/TestDatePicker';
 import DummyScreen from '../screens/auth/DummyScreen';
 import Blogs from '../screens/SubHeaders/Blogs';
+import Products from '../screens/SubHeaders/Products';
 import SkinCancerConcern from '../screens/SubHeaders/SkinCancerConcern';
 import { PersonalInfo } from '../screens/tabs/ProfileScreen';
-
+import Cart from '../screens/SubHeaders/Cart';
+import EnterCreditCardScreen from '../screens/SubHeaders/EnterCreditCardScreen';
+import BookmarkedBlogs from '../screens/SubHeaders/BookmarkedBlogs';
+import BlogDetails from '../screens/SubHeaders/BlogDetails';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -62,9 +66,20 @@ export type RootStackParamList = {
   TestDatePicker: undefined;
   DummyScreen: undefined;
   Blogs: undefined;
+  Products: undefined;
   MainDrawer: undefined;
   SkinCancerConcern: undefined,
-  EditProfile: {healthCardNumber:string,firstName:string,lastName:string,dOB:string,email:string,phoneNumber:string,Clinic:string,preference:string},
+  Cart: undefined,
+  BookmarkedBlogs: undefined;
+  BlogDetails: {title: string, image_url: string, subText: string, body: string};
+
+  EditProfile: {healthCardNumber:string,firstName:string,lastName:string,dOB:string,email:string,phoneNumber:string,Clinic:string,preference:string,profile_picture: string}
+  EnterCreditCardScreen: {healthCardNumber: string;
+    serialNumber: string;
+    price: string;
+    name: string;
+    quantity: string;
+  };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -88,39 +103,88 @@ const Router = () => {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Welcome" component={WelcomeScreen} />
-      <Stack.Screen name="Loading" component={LoadingScreen} />
-      <Stack.Screen name="RegisterPage" component={RegisterPage} />
-      <Stack.Screen name="RegisterPage2" component={RegisterPage2} />
-      <Stack.Screen name="RegisterVerification" component={RegisterVerification} />
-      <Stack.Screen name="VerificationCode" component={VerificationCode} />
-      <Stack.Screen name="WantToRegister" component={WantToRegister} />
-      <Stack.Screen name="HomeScreen" component={HomeScreen} />
-      <Stack.Screen name="VerificationCodeLogin" component={VerificationCodeLogin} />
-      <Stack.Screen name="WeFoundYou" component={WeFoundYou} />
-      <Stack.Screen name="LoginVerification" component={LoginVerification} />
-      <Stack.Screen name="ProvideInformation" component={ProvideInformation} />
-      <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
-      <Stack.Screen name="DashboardEventsScreen" component={DashboardEventsScreen} />
-      <Stack.Screen name="AIVisitsLanding" component={AIVisitsLanding} />
-      {/* Main Drawer */}
-      <Stack.Screen name="MainDrawer" component={DrawerNavigator} />
-
-      <Stack.Screen name="AIVisitsDashboard" component={AIVisitsDashboard} />
-      <Stack.Screen name="AIVisitsPage" component={AIVisitsPage} />
-      <Stack.Screen name="AIVisitPatient" component={AIVisitPatient} />
-      <Stack.Screen name="MainTabs"   component={BottomTabs} />
-      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-      <Stack.Screen name='LoginPage' component={LoginPage} />
-      <Stack.Screen name="LoginSwitchVerification" component={LoginSwitchVerification} />
-      <Stack.Screen name="EventDetail" component={EventDetailScreen} />
-      <Stack.Screen name="YearlyCalendar" component={YearlyCalendarScreen} />
-      <Stack.Screen name="DummyScreen" component={DummyScreen} />
-      <Stack.Screen name="Blogs" component={Blogs} />
-      <Stack.Screen name="SkinCancerConcern" component={SkinCancerConcern} />
+      {isAuthenticated ? (
+        // Authenticated users see the main app screens
+        <>
+          <Stack.Screen name="MainTabs" component={BottomTabs} />
+          <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
+          <Stack.Screen name="DashboardEventsScreen" component={DashboardEventsScreen} />
+          <Stack.Screen name="AIVisitsLanding" component={AIVisitsLanding} />
+          <Stack.Screen name="MainDrawer" component={DrawerNavigator} />
+          <Stack.Screen name="AIVisitsDashboard" component={AIVisitsDashboard} />
+          <Stack.Screen name="AIVisitsPage" component={AIVisitsPage} />
+          <Stack.Screen name="AIVisitPatient" component={AIVisitPatient} />
+          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+          <Stack.Screen name="EventDetail" component={EventDetailScreen} />
+          <Stack.Screen name="YearlyCalendar" component={YearlyCalendarScreen} />
+          <Stack.Screen name="Blogs" component={Blogs} />
+          <Stack.Screen name="Products" component={Products} />
+          <Stack.Screen name="Cart" component={Cart} />
+          <Stack.Screen name="SkinCancerConcern" component={SkinCancerConcern} />
+          <Stack.Screen name="EnterCreditCardScreen" component={EnterCreditCardScreen} />
+          <Stack.Screen name="BookmarkedBlogs" component={BookmarkedBlogs} />
+          <Stack.Screen name="BlogDetails" component={BlogDetails} />
+        </>
+      ) : (
+        // Unauthenticated users see auth screens
+        <>
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen name="Loading" component={LoadingScreen} />
+          <Stack.Screen name="RegisterPage" component={RegisterPage} />
+          <Stack.Screen name="RegisterPage2" component={RegisterPage2} />
+          <Stack.Screen name="RegisterVerification" component={RegisterVerification} />
+          <Stack.Screen name="VerificationCode" component={VerificationCode} />
+          <Stack.Screen name="WantToRegister" component={WantToRegister} />
+          <Stack.Screen name="LoginPage" component={LoginPage} />
+          <Stack.Screen name="LoginVerification" component={LoginVerification} />
+          <Stack.Screen name="VerificationCodeLogin" component={VerificationCodeLogin} />
+          <Stack.Screen name="LoginSwitchVerification" component={LoginSwitchVerification} />
+          <Stack.Screen name="ProvideInformation" component={ProvideInformation} />
+          <Stack.Screen name="WeFoundYou" component={WeFoundYou} />
+        </>
+      )}
     </Stack.Navigator>
   );
 };
 
 export default Router;
 
+// return (
+//   <Stack.Navigator screenOptions={{ headerShown: false }}>
+//     {isAuthenticated ? (
+//       // Authenticated users see the main app screens
+//       <>
+//         <Stack.Screen name="MainTabs" component={BottomTabs} />
+//         <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
+//         <Stack.Screen name="DashboardEventsScreen" component={DashboardEventsScreen} />
+//         <Stack.Screen name="AIVisitsLanding" component={AIVisitsLanding} />
+//         <Stack.Screen name="MainDrawer" component={DrawerNavigator} />
+//         <Stack.Screen name="AIVisitsDashboard" component={AIVisitsDashboard} />
+//         <Stack.Screen name="AIVisitsPage" component={AIVisitsPage} />
+//         <Stack.Screen name="AIVisitPatient" component={AIVisitPatient} />
+//         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+//         <Stack.Screen name="EventDetail" component={EventDetailScreen} />
+//         <Stack.Screen name="YearlyCalendar" component={YearlyCalendarScreen} />
+//         <Stack.Screen name="Blogs" component={Blogs} />
+//         <Stack.Screen name="SkinCancerConcern" component={SkinCancerConcern} />
+//       </>
+//     ) : (
+//       // Unauthenticated users see auth screens
+//       <>
+//         <Stack.Screen name="Welcome" component={WelcomeScreen} />
+//         <Stack.Screen name="Loading" component={LoadingScreen} />
+//         <Stack.Screen name="RegisterPage" component={RegisterPage} />
+//         <Stack.Screen name="RegisterPage2" component={RegisterPage2} />
+//         <Stack.Screen name="RegisterVerification" component={RegisterVerification} />
+//         <Stack.Screen name="VerificationCode" component={VerificationCode} />
+//         <Stack.Screen name="WantToRegister" component={WantToRegister} />
+//         <Stack.Screen name="LoginPage" component={LoginPage} />
+//         <Stack.Screen name="LoginVerification" component={LoginVerification} />
+//         <Stack.Screen name="VerificationCodeLogin" component={VerificationCodeLogin} />
+//         <Stack.Screen name="LoginSwitchVerification" component={LoginSwitchVerification} />
+//         <Stack.Screen name="ProvideInformation" component={ProvideInformation} />
+//         <Stack.Screen name="WeFoundYou" component={WeFoundYou} />
+//       </>
+//     )}
+//   </Stack.Navigator>
+// );

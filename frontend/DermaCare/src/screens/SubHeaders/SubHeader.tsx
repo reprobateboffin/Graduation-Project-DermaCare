@@ -17,8 +17,12 @@ const SubHeader = () => {
       </Pressable>
       <Pressable>
         <Text onPress={()=>navigation.navigate('Blogs')} style={[styles.subheading, route.name=='Blogs'&& styles.activesubheading]}>Blogs</Text>
-      </Pressable> <Pressable>
+      </Pressable> 
+      <Pressable>
         <Text onPress={()=>navigation.navigate('SkinCancerConcern')} style={[styles.subheading, route.name=='SkinCancerConcern'&& styles.activesubheading]}>Cancer Concern</Text>
+      </Pressable>
+      <Pressable>
+        <Text onPress={()=>navigation.navigate('Products')} style={[styles.subheading, route.name=='Products'&& styles.activesubheading]}>Products</Text>
       </Pressable>
     </View>
   )

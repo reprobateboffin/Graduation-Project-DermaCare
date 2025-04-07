@@ -46,15 +46,21 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   token: null, // Initialize token as null
   setIsAuthenticated: (value) => set({ isAuthenticated: value }),
-  setToken: (token) => set((state) => ({ ...state, token })), // Preserve existing state
+  setToken: (token) => set((state) => ({ ...state, token , isAuthenticated:true})), // Preserve existing state
   logout: async () => {
     await AsyncStorage.removeItem('jwt_token');
     set({ isAuthenticated: false, token: null });
   },
   initializeAuth: async () => {
-    const token = await AsyncStorage.getItem('jwt_token');
-    if (token) {
-      set({ isAuthenticated: true, token });
+    try {
+      const token = await AsyncStorage.getItem('jwt_token');
+      if (token) {
+        // If token exists, restore authenticated state
+        set({ isAuthenticated: true, token });
+      }
+    } catch (error) {
+      console.error('Error initializing auth:', error);
+      set({ isAuthenticated: false, token: null }); // Reset on error
     }
   },
 }));

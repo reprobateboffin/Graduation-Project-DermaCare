@@ -1,8 +1,10 @@
+import datetime
 import json
 import random
 from venv import logger
 from django.shortcuts import render
-from .models import User
+from jsonschema import ValidationError
+from .models import Blog, User, UserProfile
 import tensorflow as tf
 import numpy as np
 from django.views.decorators.csrf import csrf_exempt
@@ -25,6 +27,14 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from .models import Products
+from .models import Cart
+from .serializers import ProductSerializer
+from .serializers import CartSerializer
+from .serializers import InvoiceSerializer
+from .models import Invoice
+from .serializers import BlogSerializer
+
 # Define class labels
 label_mapping = {
     0: 'nv',
@@ -80,38 +90,31 @@ def simple_api(request):
 def home(request):
     return HttpResponse("home")
 
-def getBlogs(request):
-     blogs = [
-        {
-            'id': '1',
-            'title': 'The Importance of Regular Checkups',
-            'imageUrl': 'https://via.placeholder.com/150',
-            'subText': 'Regular checkups are important to ensure that you stay healthy and catch any potential issues early.',
-            'body': 'Regular checkups can help detect health problems before they become serious. They are essential for maintaining good health.',
-        },
-        {
-            'id': '2',
-            'title': 'How to Stay Healthy During Flu Season',
-            'imageUrl': 'https://via.placeholder.com/150',
-            'subText': 'Flu season can be tough, but there are ways to protect yourself and stay healthy throughout the season.',
-            'body': 'During flu season, getting the flu vaccine, washing your hands, and staying hydrated are essential for staying healthy.',
-        },
-        {
-            'id': '3',
-            'title': 'Mental Health: Coping Strategies',
-            'imageUrl': 'https://via.placeholder.com/150',
-            'subText': 'Mental health is just as important as physical health. Learn coping strategies to maintain mental well-being.',
-            'body': 'Mental health can be challenging, but practicing mindfulness, seeking therapy, and staying active can help cope with mental health issues.',
-        }, {
-            'id': '4',
-            'title': 'Specially For Your Skin',
-            'imageUrl': 'https://via.placeholder.com/150',
-            'subText': 'Mental health is just as important as physical health. Learn coping strategies to maintain mental well-being.',
-            'body': 'Mental health can be challenging, but practicing mindfulness, seeking therapy, and staying active can help cope with mental health issues.',
-        },
-    ]
-     return JsonResponse({'blogs': blogs})
 
+
+@api_view(['GET'])
+def getBlogs(request):
+    blogs = Blog.objects.all()
+    serializer = BlogSerializer(blogs, many=True, context={'request': request})  # <--- key part here
+    print(serializer.data)
+    return Response({'blogs': serializer.data})
+
+
+@api_view(['PATCH'])
+def update_bookmark(request, pk):
+    try:
+        blog = Blog.objects.get(pk=pk)
+    except Blog.DoesNotExist:
+        return Response({'error': 'Blog not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Update the bookmarked status from the request data
+    bookmarked = request.data.get('bookmarked', blog.bookmarked)
+    blog.bookmarked = bookmarked
+    blog.save()
+
+    # Return updated blog data
+    serializer = BlogSerializer(blog)
+    return Response(serializer.data)
 
 
 @csrf_exempt  # Temporarily disable CSRF for this view (not recommended in production)
@@ -269,7 +272,8 @@ def get_profile_info(request):
         if not user:
             return Response({'error': 'User not found'}, status=404)
 
-        serializer = UserSerializer(user)  # No need for `many=True` since only one object is returned
+        serializer = UserSerializer(user, context={'request': request})  # No need for `many=True` since only one object is returned
+        print(f'{serializer}is SERIALIZER wIth pfp {serializer.get_profile_picture}')
         return Response(serializer.data)
 
     except Exception as e:
@@ -299,7 +303,7 @@ def book_appointments(request,pk):
         return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 def generate_otp():
-    return str(random.randint(100000, 999999))
+    return str(random.randint(10, 99))
 
 @csrf_exempt
 def send_otp_email(request):
@@ -328,10 +332,13 @@ def get_token(request):
         
         # Generate the JWT token for the user
         refresh = RefreshToken.for_user(user)
+        refresh["healthCardNumber"] = user.HealthCareNumber
+
         access_token = str(refresh.access_token)
 
-        # Return the token as part of the resptry:        #%20Find%20the%20user%20by%20their%20health%20card%20number%20%20%20%20%20%20%20%20user%20=%20User.objects.get(health_card_number=health_card_number)%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20#%20Generate%20the%20JWT%20token%20for%20the%20user%20%20%20%20%20%20%20%20refresh%20=%20RefreshToken.for_user(user)%20%20%20%20%20%20%20%20access_token%20=%20str(refresh.access_token)%20%20%20%20%20%20%20%20#%20Return%20the%20token%20as%20part%20of%20the%20response%20%20%20%20%20%20%20%20return%20Response({'token':%20access_token},%20status=status.HTTP_200_OK)%20%20%20%20except%20User.DoesNotExist:%20%20%20%20%20%20%20%20return%20Response({'error':%20'User%20with%20provided%20health%20card%20number%20not%20found'},%20status=status.HTTP_400_BAD_REQUEST)onse
         return Response({'token': access_token}, status=status.HTTP_200_OK)
+
+
 
     except User.DoesNotExist:
         return Response({'error': 'User with provided health card number not found'}, status=status.HTTP_400_BAD_REQUEST)
@@ -352,27 +359,140 @@ def get_user_info(request):
     except Exception as e:
         return Response({"error":"an error as occured"}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['PUT'])
+# @api_view(['PUT'])
+# @csrf_exempt
+# def update_user(request):
+#     if request.method == "PUT":
+#         try:
+#             data = json.loads(request.body)
+#             health_card_number = data.get("HealthCareNumber")
+#             print(health_card_number)
+#             try:
+#                 user = User.objects.get(HealthCareNumber=health_card_number)
+#                 serializer = UserSerializer(user, data=data, partial=True)
+#                 if serializer.is_valid():
+#                     serializer.save()
+#                     return JsonResponse(serializer.data, status=200)
+#                 return JsonResponse(serializer.errors, status=400)
+#             except User.DoesNotExist:
+#                 return JsonResponse({"error": "User not found"}, status=404)
+#         except json.JSONDecodeError:
+#             return JsonResponse({"error": "Invalid JSON"}, status=400)
+#     return JsonResponse({"error": "Method not allowed"}, status=405)
 
-@csrf_exempt
+
+# @csrf_exempt
+# def update_user(request):
+#     if request.method == "PUT":
+#         try:
+#             # Get health card number from request
+#             health_card_number = request.POST.get("HealthCareNumber")
+#             if not health_card_number:
+#                 return JsonResponse(
+#                     {"error": "HealthCareNumber is required"},
+#                     status=status.HTTP_400_BAD_REQUEST
+#                 )
+
+#             # Get the user profile using the health card number from User model
+#             user_profile = UserProfile.objects.get(user__HealthCareNumber=health_card_number)
+#             user = user_profile.user
+
+#             # Update fields if provided
+#             user.first_name = request.POST.get("FirstName", user.first_name)
+#             user.last_name = request.POST.get("LastName", user.last_name)
+#             user.email = request.POST.get("Email", user.email)
+#             user.phone_number = request.POST.get("PhoneNumber", user.phone_number)
+#             # Add other fields as needed
+#             user.clinic = request.POST.get("Clinic", user.clinic)
+#             user.date_of_birth = request.POST.get("DateOfBirth", user.date_of_birth)
+#             user.preference = request.POST.get("Preference", user.preference)
+
+#             # Handle profile picture
+#             if "profile_picture" in request.FILES:
+#                 user_profile.profile_picture = request.FILES["profile_picture"]
+
+#             # Save both models
+#             user.save()
+#             user_profile.save()
+
+#             return JsonResponse(
+#                 {"message": "Profile updated successfully"},
+#                 status=status.HTTP_200_OK
+#             )
+
+#         except ObjectDoesNotExist:
+#             return JsonResponse(
+#                 {"error": "User not found"},
+#                 status=status.HTTP_404_NOT_FOUND
+#             )
+#         except Exception as e:
+#             return JsonResponse(
+#                 {"error": str(e)},
+#                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
+#             )
+#     else:
+#         return JsonResponse(
+#             {"error": "Method not allowed"},
+#             status=status.HTTP_405_METHOD_NOT_ALLOWED
+#         )
+
+import os
+
+@api_view(['PUT'])
 def update_user(request):
-    if request.method == "PUT":
-        try:
-            data = json.loads(request.body)
-            health_card_number = data.get("HealthCareNumber")
-            print(health_card_number)
-            try:
-                user = User.objects.get(HealthCareNumber=health_card_number)
-                serializer = UserSerializer(user, data=data, partial=True)
-                if serializer.is_valid():
-                    serializer.save()
-                    return JsonResponse(serializer.data, status=200)
-                return JsonResponse(serializer.errors, status=400)
-            except User.DoesNotExist:
-                return JsonResponse({"error": "User not found"}, status=404)
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON"}, status=400)
-    return JsonResponse({"error": "Method not allowed"}, status=405)
+    logger.debug(f"Request data: {request.data}")
+    logger.debug(f"Request files: {request.FILES}")
+
+    try:
+        health_card_number = request.data.get("HealthCareNumber")
+        first_name = request.data.get("FirstName")
+        last_name = request.data.get("LastName")  # ✅ Fixed
+        date_of_birth = request.data.get("DateOfBirth")
+        email = request.data.get("Email")
+        phone = request.data.get("PhoneNumber")
+        preference = request.data.get("Preference")
+        clinic = request.data.get("Clinic")
+
+        user = User.objects.get(HealthCareNumber=health_card_number)
+        user_profile, created = UserProfile.objects.get_or_create(user=user)
+
+        profile_picture = request.FILES.get("profile_picture")  # ✅ Fixed
+
+        if profile_picture:
+            # Delete old profile picture if exists
+            if user_profile.profile_picture:
+                old_picture_path = os.path.join(settings.MEDIA_ROOT, str(user_profile.profile_picture))
+                if os.path.exists(old_picture_path):
+                    os.remove(old_picture_path)  # ✅ Delete old image
+
+            user_profile.profile_picture = profile_picture
+            user_profile.save()
+
+        # Update user details
+        user.HealthCareNumber = health_card_number
+        user.FirstName = first_name
+        user.LastName = last_name
+        user.DateOfBirth = date_of_birth
+        user.Clinic = clinic
+        user.Email = email
+        user.PhoneNumber = phone
+        user.save()
+
+        # Include the new profile picture in the response
+        return Response({
+            "message": "Profile updated successfully",
+            "profile_picture": request.build_absolute_uri(user_profile.profile_picture.url) if user_profile.profile_picture else None,
+        }, status=status.HTTP_200_OK)
+
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    except ValidationError as ve:
+        return Response({"error": "Invalid data", "details": ve.message_dict}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        logger.error(f"Unexpected error: {str(e)}", exc_info=True)
+        return Response({"error": "Internal server error", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
@@ -381,3 +501,202 @@ def upload_profile_picture(request):
     user_profile.profile_picture = request.FILES["profile_picture"]
     user_profile.save()
     return Response({"message": "Profile picture uploaded successfully", "image_url": user_profile.profile_picture.url})
+
+
+
+# views.py
+@api_view(['GET'])
+def get_user_profile(request):
+    try:
+        health_care_number = request.data.get('HealthCareNumber')
+        user = User.objects.get(HealthCareNumber=health_care_number)
+        user_profile = UserProfile.objects.get(user=user)
+        data = {
+            'health_care_number': user.HealthCareNumber,
+            'first_name': user.first_name,  # Adjust if in UserProfile
+            'last_name': user.last_name,    # Adjust if in UserProfile
+            'profile_picture': request.build_absolute_uri(user_profile.profile_picture.url) if user_profile.profile_picture else None,
+        }
+        print(f'{user_profile.profile_picture.url}')
+        return Response(data, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    except UserProfile.DoesNotExist:
+        return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        logger.error(f"Error fetching profile: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['GET'])
+def get_products(request):
+    products = Products.objects.all()
+    serializer_data = ProductSerializer(products, many=True, context={'request': request})
+    print(serializer_data)
+    return Response(serializer_data.data)
+
+
+# @api_view(['POST'])
+# def add_to_cart(request):
+#     healthCareNumber = request.data.get('healthCareNumber')
+#     serialNumber = request.data.get('serialNumber')
+#     quantity = int(request.data.get('quantity',1))
+
+#     user = User.objects.get(HealthCareNumber=healthCareNumber)
+#     product = Products.objects.get(serialNumber=serialNumber)
+
+#     cart,created = Cart.objects.get_or_create(user=user)
+
+#     cart_item = CartItem.objects.get_or_create(cart=cart,product=product)
+
+#     if not created:
+#         cart_item.quantity += quantity
+#     else: 
+#         cart_item.quantity = quantity
+#     cart_item.save()
+
+#     return Response({'message': 'Product added to cart successfully'})
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(['POST'])
+def add_to_cart(request):
+    healthCareNumber = request.data.get('healthCareNumber')
+    serialNumber = request.data.get('serialNumber')
+    quantity = int(request.data.get('quantity', 1))
+
+    print(f"Request: healthCareNumber={healthCareNumber}, serialNumber={serialNumber}")
+
+    try:
+        user = User.objects.get(HealthCareNumber=healthCareNumber)
+        print(user.Clinic)
+
+        product = Products.objects.get(serialNumber=serialNumber)
+        print(product.price)
+        print(f"Found: user={user.HealthCareNumber}, product={product.type}")
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=404)
+    except Products.DoesNotExist:
+        return Response({'error': 'Product not found: ' + serialNumber}, status=404)
+
+    cart, created = Cart.objects.get_or_create(
+        healthCardNumber=user,
+        serialNumber=product,
+        defaults={'quantity': 1}  # only used if new object is created
+    )
+
+    if not created:
+        cart.quantity += 1  # increase existing quantity
+    cart.save()
+    print(f"Cart: {cart.healthCardNumber}, created={created}")
+
+    try:
+        print(f"CartItem: serialNumber={cart.serialNumber}, created={created}")
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+
+    cart.save()
+
+    return Response({'message': 'Product added to cart successfully'}, status=200)
+
+
+
+@api_view(['POST'])
+def get_cart_items(request):
+    healthCardNumber = request.data.get('healthCardNumber')
+    cart_items = Cart.objects.filter(healthCardNumber=healthCardNumber)
+    serializer_data = CartSerializer(cart_items, many=True)
+    return Response(serializer_data.data)
+
+@api_view(['POST'])
+def remove_cart_item(request):
+    healthCareNumber = request.data.get('healthCardNumber')
+    user = User.objects.get(HealthCareNumber=healthCareNumber)
+    serialNumber = request.data.get('serialNumber')
+    product = Products.objects.get(serialNumber=serialNumber)
+    cart_item = Cart.objects.get(healthCardNumber=user, serialNumber=product)
+    cart_item.delete()
+    return Response({"message": "deleted successfully"})
+# @api_view(['POST'])
+# def buy_cart_item(request):
+
+    # try:
+    #     # 1. Extract request data
+    #     healthCareNumber = request.data.get('healthCardNumber')
+    #     serialNumber = request.data.get('serialNumber')
+    #     price = request.data.get('price')
+    #     quantity = request.data.get('quantity')
+
+    #     # 2. Get related user and product
+    #     user = User.objects.get(HealthCareNumber=healthCareNumber)
+    #     product = Products.objects.get(serialNumber=serialNumber)
+
+    #     # 3. Delete item from cart
+    #     cart_item = Cart.objects.get(healthCardNumber=user, serialNumber=product)
+    #     cart_item.delete()
+
+    #     # 4. Create invoice
+    #     invoice = Invoice.objects.create(
+    #         health_card_number=healthCareNumber,
+    #         serial_number=serialNumber,
+    #         quantity=quantity,
+    #         price=price,
+    #     )
+
+    #     # 5. Serialize and return
+    #     serializer = InvoiceSerializer(invoice, many=True, context={'request': request})
+    #     print(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    # except User.DoesNotExist:
+    #     return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    # except Products.DoesNotExist:
+    #     return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+    # except Cart.DoesNotExist:
+    #     return Response({"error": "Item not found in cart"}, status=status.HTTP_404_NOT_FOUND)
+    # except Exception as e:
+    #     return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+from rest_framework.response import Response
+from rest_framework import status
+
+@api_view(['POST'])
+def buy_cart_item(request):
+    try:
+        print("Request data:", request.data)  # Debug: print the incoming data
+
+        healthCareNumber = request.data.get('healthCardNumber')
+        serialNumber = request.data.get('serialNumber')
+        price = request.data.get('finalPrice')
+        quantity = request.data.get('quantity')
+
+        if not all([healthCareNumber, serialNumber, price, quantity]):
+            return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.get(HealthCareNumber=healthCareNumber)
+        product = Products.objects.get(serialNumber=serialNumber)
+
+        # Optional: verify price/quantity match the product or user data
+
+        cart_item = Cart.objects.get(healthCardNumber=user, serialNumber=product)
+        cart_item.delete()
+
+        invoice = Invoice.objects.create(
+            health_card_number=healthCareNumber,
+            serial_number=serialNumber,
+            quantity=quantity,
+            price=price
+        )
+
+        serializer = InvoiceSerializer(invoice)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Products.DoesNotExist:
+        return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Cart.DoesNotExist:
+        return Response({"error": "Cart item not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

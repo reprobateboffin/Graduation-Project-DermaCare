@@ -27,10 +27,11 @@ import {RootStackParamList} from './Router'
 export type BottomTabParamList = {
   Home: undefined;
   Hours: undefined;
-  BookAppointment: {healthCardNumber:string};
+  BookAppointment: {healthCardNumber?:string};
   ContactUs: undefined;
   Profile:  {healthCardNumber:string};
   Blogs: undefined;
+  Products: undefined;
   SkinCancerConcern:undefined;
   MainTabs: undefined,
 };
@@ -228,6 +229,7 @@ interface BottomTabsProps {
 
 
 export default function BottomTabs({route}:BottomTabsProps) {
+  
   const params = route?.params || {};
   const { healthCardNumber } = params;
   console.log("healthCardNumber in BottomTabs:", healthCardNumber); // Add this log

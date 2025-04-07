@@ -75,7 +75,7 @@ const getJWTToken =  async (healthCardNumber,userCode) =>{
     // if(userCode == verificationCode){
     if(userCode == verificationCode){
       getJWTToken(healthCardNumber,userCode)
-    // navigation.navigate("MainTabs",{healthCardNumber});
+    navigation.navigate("MainTabs",{healthCardNumber});
   }
     else{
       alert(`wrong code`)

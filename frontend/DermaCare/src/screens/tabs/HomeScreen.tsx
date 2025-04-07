@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, Dimensions, ScrollView, Linking, Animated, Pressable } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { BottomTabParamList } from '../../navigation/BottomTabs';
 import { colors } from '../../theme/colors';
@@ -14,10 +14,17 @@ import AnimatedSection from '../../components/AnimatedSection';
 import { Ionicons } from '@expo/vector-icons';
 import SubHeader from '../SubHeaders/SubHeader';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { jwtDecode, JwtPayload } from 'jwt-decode';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HERO_IMAGE_WIDTH = 522;
 const HERO_IMAGE_HEIGHT = 447;
-
+declare module 'jwt-decode' {
+  interface CustomJwtPayload extends JwtPayload {
+    healthCardNumber: string;
+    // Add other custom claims here if needed
+  }
+}
 
 const HomeScreen = () => {
   const navigation = useNavigation<BottomTabNavigationProp<BottomTabParamList>>();
@@ -30,9 +37,29 @@ const HomeScreen = () => {
     // Navigate to physicians list
   };
 useEffect(()=>{
+
   console.log('Retreived Token', token)
-  
+  const decodeToken = async () => {
+    const token = await AsyncStorage.getItem('jwt_token');
+
+    try {
+      if (token) {
+        const decoded = jwtDecode(token) as { healthCardNumber: string } & JwtPayload;
+        const extractedHealthCardNumber = decoded.healthCardNumber;
+        console.log('Decoded HealthCardNumber:', extractedHealthCardNumber);
+        setHealthCardNumber(extractedHealthCardNumber);
+        alert(healthCardNumber)
+      }
+    } catch (error) {
+      console.error('Failed to decode token:', error);
+    }
+  };
+
+  decodeToken();
 },[token])
+
+
+
   return (
     <SafeAreaView style={styles.container}>
       <Animated.ScrollView 

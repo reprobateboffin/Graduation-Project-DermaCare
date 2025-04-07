@@ -1,109 +1,103 @@
+
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, TextInput } from 'react-native';
-import { colors } from '../../theme/colors';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, TextInput, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../navigation/Router';
 import * as ImagePicker from 'expo-image-picker';
-import { BottomTabParamList } from '../../navigation/BottomTabs';
+import { colors } from '../../theme/colors';
+import { RootStackParamList } from '../../navigation/Router';
 import { API_HOME } from '../auth/config';
-// import UploadProfilePicture from './UploadProfilePicture';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
+
+type ProfileScreenRouteProp = RouteProp<RootStackParamList, 'EditProfile'>;
 
 interface InputFieldProps {
   label: string;
   value?: string;
-  onChangeText?: (text: string) => void; // Accept onChangeText as a prop
+  onChangeText?: (text: string) => void;
 }
-interface EditProfileScreenProps {
-  navigation: StackNavigationProp<RootStackParamList>;
-}
-// interface PersonalInfo {  
-//   HealthCareNumber: string;
 
-//   FirstName: string;
-//   LastName: string;
-//   DateOfBirth: string;
-//   Email: string;
-//   PhoneNumber: string;
-//   Preference:string;
-  
-// }
-
-// const PERSONAL_INFO: PersonalInfo = {
-//   FirstName: "Santiago",
-//   LastName: "Silva",
-//   HealthCareNumber: "12",
-//   DateOfBirth: "2001/01/18",
-  
-//   PhoneNumber: "306 (123) 4567",
-//   Email: "santiago@pgrminc.com",
-//   Preference: "Phone"
-// };
-type ProfileScreenRouteProp = RouteProp<RootStackParamList, 'EditProfile'>;
-// interface InputFieldProps {
-//   label: string;
-//   value?: string;
-// }
-const EditProfileScreen: React.FC<EditProfileScreenProps> = () => {
-  const route = useRoute<ProfileScreenRouteProp>(); // Type the route
-    const { healthCardNumber,firstName,lastName, dOB,email,phoneNumber,Clinic,preference } = route.params || {}; 
+const EditProfileScreen: React.FC = () => {
+  const route = useRoute<ProfileScreenRouteProp>();
+  const { healthCardNumber, firstName, lastName, dOB, email, phoneNumber, Clinic, preference, profile_picture } = route.params || {};
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const [image, setImage] = React.useState<string | null>(null);
-  // const [firstName,setFirstName] = useState('')
-  // const [lastName,setLastName] = useState('')
-  // const [email,setEmail] = useState('')
-  // const [phone,setPhone] = useState('')
-  // const [dOB,setDOB] = useState('')
-  // const [preference,setPreference] = useState('')
-  useEffect(()=>{
-  },[])
 
-    // const response = fetch(`${API_HOME}/api/profile/`,{
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     healthCardNumber: healthCardNumber,
-    //   }),
-    // })
-    // .then((response)=>response.json())
-    // .then((data)=>{
-    //   setFirstName(data.FirstName)
-    //   setLastName(data.LastName)
-    //   setDOB(data.DateOfBirth)
-    //   setEmail(data.Email)
-    //   setPhone(data.PhoneNumber)
-    //   console.log(data);
-     
-    // })
-    
-    const [updatedHealthCardNumber, setUpdatedHealthCardNumber] = useState(healthCardNumber);
-    const [updatedFirstName, setUpdatedFirstName] = useState(firstName);
+  const [image, setImage] = useState<string | null>(null);
+  const [updatedHealthCardNumber, setUpdatedHealthCardNumber] = useState(healthCardNumber);
+  const [updatedFirstName, setUpdatedFirstName] = useState(firstName);
   const [updatedLastName, setUpdatedLastName] = useState(lastName);
   const [updatedDOB, setUpdatedDOB] = useState(dOB);
   const [updatedEmail, setUpdatedEmail] = useState(email);
-  const [updatedClinic, setUpdatedClinic] = useState(Clinic);
-
   const [updatedPhoneNumber, setUpdatedPhoneNumber] = useState(phoneNumber);
+  const [updatedClinic, setUpdatedClinic] = useState(Clinic);
   const [updatedPreference, setUpdatedPreference] = useState(preference);
-    
-  // const [healthCardNumber,setHealthCardNumber] = useState()
+
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
     if (status !== 'granted') {
-      alert('Permission required to access photos!');
+      Alert.alert('Permission Denied', 'You need to allow access to your photos.');
       return;
     }
+   
+// useEffect(() =>{
+//   const func = async ()=>{
+  
+//    await fetch(`${API_HOME}/api/get-pfp`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ HealthCareNumber: updatedHealthCardNumber }), // Sending HealthCareNumber
+//     })
+//       .then((response) => response.json())
+//       .then((data) => {
+//         if (data.error) {
+// console.log(data.error);
+//         } else {
+//           setImage(data);
+//         }
+//       })
+//       .catch((error) => {
+//         console.error("Error:", error);
+//       });
+//     }
+//     func()
+// } ,[updatedHealthCardNumber])
 
+// useFocusEffect(
+//   useCallback(() => {
+//     const fetchProfilePicture = async () => {
+//       try {
+//         const response = await fetch(`${API_HOME}/api/get-pfp/`, {
+//           method: 'POST',
+//           headers: {
+//             'Content-Type': 'application/json',
+//           },
+//           body: JSON.stringify({ HealthCareNumber: updatedHealthCardNumber }),
+//         });
 
+//         const data = await response.json();
+//         if (data.error) {
+//           console.log(data.error);
+//         } else {
+//           setImage(data.profile_picture);
+//           alert(data)
+//           console.log(data);
+//         }
+//       } catch (error) {
+//         console.error('Error fetching profile picture:', error);
+//       }
+//     };
 
+//     fetchProfilePicture();
+//   }, [updatedHealthCardNumber])
+// );
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'], // Updated from ImagePicker.MediaTypeOptions.Images
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
@@ -114,77 +108,84 @@ const EditProfileScreen: React.FC<EditProfileScreenProps> = () => {
     }
   };
 
-const dataToUpdate= {
-  HealthCareNumber:updatedHealthCardNumber,
-  Clinic: updatedClinic,
-  FirstName:updatedFirstName,
-  LastName: updatedLastName,
-  DateOfBirth:updatedDOB,
-  Email: updatedEmail,
-  PhoneNumber: updatedPhoneNumber,
-  Preference: updatedPreference
-}
-  const handleSubmit = async() =>{
-    const response = await fetch(`${API_HOME}/api/update-user/`,{
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify( dataToUpdate ),
-    })
-    .then((response)=>response.json())
-    .then((data)=>{
+  const handleSubmit = async () => {
+    const formData = new FormData();
+    formData.append("HealthCareNumber", updatedHealthCardNumber || '');
+    formData.append("Clinic", updatedClinic || '');
+    formData.append("FirstName", updatedFirstName || '');
+    formData.append("LastName", updatedLastName || '');
+    formData.append("DateOfBirth", updatedDOB || '');
+    formData.append("Email", updatedEmail || '');
+    formData.append("PhoneNumber", updatedPhoneNumber || '');
+    formData.append("Preference", updatedPreference || '');
 
-      console.log(data);
-      console.log(updatedHealthCardNumber);
+    if (image) {
+      const fileName = image.split('/').pop() || 'profile.jpg';
+      const fileType = fileName.split('.').pop() || 'jpeg';
+      formData.append("profile_picture", {
+        uri: image,
+        name: fileName,
+        type: `image/${fileType}`,
+      } as any);
+    }
+    else{
+      console.log("No Image Selected");
+    }
+    console.log('FormData contents:');
+    for (let [key, value] of (formData as any).entries()) {
+      console.log(`Hi ${key}: ${JSON.stringify(value)}`);
+    }
+    try {
+      const response = await fetch(`${API_HOME}/api/update-user/`, {
+        method: 'PUT',
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
 
-    })
-    navigation.goBack()
+          // 'Content-Type': 'multipart/form-data', // ✅ Add this
+        },
+      });
 
-
-  }
+      const result = await response.json();
+      if (response.ok) {
+        Alert.alert('Success', 'Profile updated successfully!');
+        navigation.goBack();
+      } else {
+        Alert.alert( `${result.message}`);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update profile');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={colors.base.black} />
         </TouchableOpacity>
       </View>
-
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Personal Information</Text>
-
-        {/* Profile Image */}
         <View style={styles.profileImageContainer}>
           <TouchableOpacity onPress={pickImage} style={styles.imageWrapper}>
-           <Image 
-              source={image ? { uri: image } : require('../../../assets/images/profile-placeholder.png')} 
+            <Image
+              source={image ? { uri: image } :{uri:profile_picture}}
               style={styles.profileImage}
-            /> 
-            {/* <UploadProfilePicture /> */}
+            />
             <View style={styles.editImageButton}>
               <Ionicons name="camera" size={20} color={colors.base.white} />
             </View>
           </TouchableOpacity>
         </View>
-
-        {/* Form Fields */}
-        {/* <View style={styles.form}> */}
-        <InputField label="health card number" value={healthCardNumber} onChangeText={setUpdatedHealthCardNumber} />
+        <InputField label="Health Card Number" value={updatedHealthCardNumber} onChangeText={setUpdatedHealthCardNumber} />
         <InputField label="First Name" value={updatedFirstName} onChangeText={setUpdatedFirstName} />
         <InputField label="Last Name" value={updatedLastName} onChangeText={setUpdatedLastName} />
         <InputField label="Date of Birth" value={updatedDOB} onChangeText={setUpdatedDOB} />
         <InputField label="Email" value={updatedEmail} onChangeText={setUpdatedEmail} />
         <InputField label="Phone Number" value={updatedPhoneNumber} onChangeText={setUpdatedPhoneNumber} />
         <InputField label="Preference" value={updatedPreference} onChangeText={setUpdatedPreference} />
-{/* navigation.goBack() */}
-        {/* Done Button */}
-        <TouchableOpacity 
-          style={styles.doneButton}
-          onPress={handleSubmit}
-        >
+        <TouchableOpacity style={styles.doneButton} onPress={handleSubmit}>
           <Text style={styles.doneButtonText}>Done</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -192,16 +193,14 @@ const dataToUpdate= {
   );
 };
 
-
-
-const InputField: React.FC<InputFieldProps> = ({ label, value, onChangeText}) => (
+const InputField: React.FC<InputFieldProps> = ({ label, value, onChangeText }) => (
   <View style={styles.inputContainer}>
     <Text style={styles.inputLabel}>{label}</Text>
     <TextInput
       style={styles.input}
       value={value}
       placeholder=""
-       onChangeText={onChangeText} // Add onChangeText prop here
+      onChangeText={onChangeText}
     />
   </View>
 );
@@ -269,15 +268,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  form: {
-    width: '100%',
-    gap: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.base.black,
-  },
   inputContainer: {
     gap: 8,
   },
@@ -285,14 +275,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.base.black,
   },
-  // input: {
-  //   width: '100%',
-  //   height: 48,
-  //   backgroundColor: colors.base.lightGray,
-  //   borderRadius: 8,
-  //   paddingHorizontal: 16,
-  //   fontSize: 16,
-  // },
   doneButton: {
     backgroundColor: colors.primary.green,
     paddingVertical: 10,
@@ -311,8 +293,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditProfileScreen; 
-
-function setImage(uri: string) {
-  throw new Error('Function not implemented.');
-}
+export default EditProfileScreen;

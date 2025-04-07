@@ -23,7 +23,14 @@ urlpatterns = [
     path('user-info/', views.get_user_info, name='get-user-info'),  
     path('update-user/', views.update_user, name='update-user-info'),  
     path("upload-pfp/", views.upload_profile_picture, name="upload-profile-picture"),
+    path("get-pfp/", views.get_user_profile, name="get-profile-picture"),
+    path("get-products/", views.get_products, name="get-products"),
+    path("add-to-cart/", views.add_to_cart, name="add-to-cart"),
+    path("get-cart-items/", views.get_cart_items, name="get-cart-items"),
+    path("remove-cart-item/", views.remove_cart_item, name="remove-cart-items"),
+    path("buy-cart-item/", views.buy_cart_item, name="buy-cart-items"),
+    path('blogs/<int:pk>/', views.update_bookmark, name='update_bookmark'),
 
 
 ]
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

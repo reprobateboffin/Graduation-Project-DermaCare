@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View, Text, FlatList, Image, SafeAreaView, ImageBackground } from 'react-native';
-import colors from '../../theme/colors';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { Pressable, StyleSheet, View, Text, FlatList, Image, SafeAreaView, ImageBackground, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/types';
 import SubHeader from './SubHeader';
+import { API_HOME } from '../auth/config';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 interface Blog {
   id: string;
   title: string;
-  imageUrl: string;
+  image_url: string;
   subText: string;
+  body: string;
+  bookmarked?: boolean;
 }
 
 interface BlogScreenProps {
@@ -19,19 +22,19 @@ interface BlogScreenProps {
 
 const Blogs: React.FC<BlogScreenProps> = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const route = useRoute();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://192.168.1.106:8000/api/blogs/')
+    fetch(`${API_HOME}/api/blogs/`)
       .then((response) => {
         if (!response.ok) throw new Error('Failed to fetch blogs');
         return response.json();
       })
       .then((data) => {
-        setBlogs(data.blogs || []); // Fallback to empty array if 'blogs' key is missing
+        setBlogs(data.blogs || []);
+        console.log(data.blogs);
         setLoading(false);
       })
       .catch((err) => {
@@ -40,22 +43,87 @@ const Blogs: React.FC<BlogScreenProps> = () => {
       });
   }, []);
 
+  const toggleBookmark = (id: string) => {
+    const updatedBlogs = blogs.map(blog =>
+      blog.id === id ? { ...blog, bookmarked: !blog.bookmarked } : blog
+    );
+    setBlogs(updatedBlogs);
+
+    const blogToUpdate = updatedBlogs.find(blog => blog.id === id);
+    if (blogToUpdate) {
+      fetch(`${API_HOME}/api/blogs/${id}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ bookmarked: blogToUpdate.bookmarked }),
+      })
+        .then(response => {
+          if (!response.ok) throw new Error(`Failed to update bookmark: ${response.status}`);
+          return response.json();
+        })
+        .then(data => {
+          console.log('Bookmark updated:', data);
+          setBlogs(prevBlogs =>
+            prevBlogs.map(blog =>
+              blog.id === id ? { ...blog, bookmarked: data.bookmarked } : blog
+            )
+          );
+        })
+        .catch(error => {
+          console.error('Error updating bookmark:', error);
+          setBlogs(prevBlogs => prevBlogs.map(blog =>
+            blog.id === id ? { ...blog, bookmarked: !blogToUpdate.bookmarked } : blog
+          ));
+          alert('Failed to update bookmark. Please try again.');
+        });
+    }
+  };
+
+  const handlePress = (title: string, image_url: string, subText: string, body: string) => {
+    console.log('Read More pressed:', { title, image_url, subText, body });
+    navigation.navigate('BlogDetails', { title, image_url, subText, body });
+  };
+
   const renderItem = ({ item }: { item: Blog }) => (
-    <Pressable style={styles.blogItem}>
-      <Image source={{ uri: item.imageUrl }} style={styles.blogImage} />
+    <View style={styles.blogItem}>
+      <Pressable
+        onPress={() => toggleBookmark(item.id)}
+        style={styles.bookmarkIcon}
+      >
+        <Ionicons
+          name={item.bookmarked ? 'bookmark' : 'bookmark-outline'}
+          size={24}
+          color={item.bookmarked ? '#016C9D' : '#999'}
+        />
+      </Pressable>
+      <Image source={{ uri: item.image_url }} style={styles.blogImage} />
       <Text style={styles.blogTitle}>{item.title}</Text>
       <Text style={styles.blogSubText}>{item.subText}</Text>
-    </Pressable>
+      <TouchableOpacity
+        style={styles.readMoreButton}
+        onPress={() => handlePress(item.title, item.image_url, item.subText, item.body)}
+      >
+        <Text style={styles.readMoreText}>Read More</Text>
+      </TouchableOpacity>
+    </View>
   );
 
   return (
     <ImageBackground
-      source={require('../../../assets/images/doctor-patient.png')} // Reuse same image as SkinCancerConcern
+      source={require('../../../assets/images/doctor-patient.png')}
       style={styles.container}
     >
       <View style={styles.overlay} />
       <SafeAreaView style={styles.safeArea}>
         <SubHeader />
+        <TouchableOpacity
+          style={styles.bookmarkedButton}
+          onPress={() => navigation.navigate('BookmarkedBlogs')}
+        >
+          <Ionicons name="bookmark" size={20} color="#fff" />
+          <Text style={styles.bookmarkedButtonText}>Bookmarked Blogs</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>Health Blogs</Text>
 
         {loading ? (
@@ -79,7 +147,7 @@ const Blogs: React.FC<BlogScreenProps> = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Fill the screen
+    flex: 1,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
@@ -90,12 +158,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatListContent: {
-    padding: 20, // Padding for content
+    padding: 20,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#fff', // White text for contrast with overlay
+    color: '#fff',
     textAlign: 'center',
     marginVertical: 20,
   },
@@ -114,11 +182,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
+    marginBottom: 5,
   },
   blogSubText: {
     fontSize: 14,
     color: '#666',
     lineHeight: 20,
+    marginBottom: 10,
   },
   blogImage: {
     width: '100%',
@@ -143,6 +213,44 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     marginTop: 20,
+  },
+  bookmarkIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 10,
+    padding: 5,
+    width: 34,
+    height: 34,
+  },
+  bookmarkedButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#0288D1',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginHorizontal: 20,
+    marginTop: 10,
+  },
+  bookmarkedButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 10,
+  },
+  readMoreButton: {
+    backgroundColor: '#0288D1',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    alignSelf: 'flex-start', // Align to left or center as preferred
+  },
+  readMoreText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 
