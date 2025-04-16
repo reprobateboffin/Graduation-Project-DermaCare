@@ -59,7 +59,7 @@ const getJWTToken =  async (healthCardNumber,userCode) =>{
     setIsAuthenticated(true);
 
     // Navigate to MainTabs
-    navigation.navigate("MainTabs", { healthCardNumber });
+    // navigation.navigate("MainTabs", { healthCardNumber });
   } catch (error) {
     console.error("Error fetching JWT token:", error);
     alert("There was an error with token retrieval.");

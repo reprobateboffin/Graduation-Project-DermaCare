@@ -33,7 +33,8 @@ export type BottomTabParamList = {
   Blogs: undefined;
   Products: undefined;
   SkinCancerConcern:undefined;
-  MainTabs: undefined,
+  MainTabs: {healthCardNumber?:string},
+  SeeOurPhysicians: undefined,
 };
 
 // Custom Tab Bar Component with animations

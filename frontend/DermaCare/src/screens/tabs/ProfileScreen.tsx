@@ -1,114 +1,149 @@
+
 // import React, { useCallback, useEffect, useState } from 'react';
 // import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 // import { colors } from '../../theme/colors';
-// import { RouteProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 // import { StackNavigationProp } from '@react-navigation/stack';
+// import { useNavigation, useFocusEffect } from '@react-navigation/native';
 // import { RootStackParamList } from '../../navigation/Router';
 // import { API_HOME } from '../auth/config';
-// import { useRoute } from '@react-navigation/native';
-// import { BottomTabParamList } from '../../navigation/BottomTabs';
 // import { useAuthStore } from '../../store/useAuthStore';
+// import { jwtDecode } from 'jwt-decode'; // Import jwt-decode
 // import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { jwtDecode } from 'jwt-decode';
-// export interface PersonalInfo {  
-//   HealthCareNumber: string;
 
-//   FirstName: string;
-//   LastName: string;
-//   DateOfBirth: string;
-//   Email: string;
-//   Clinic: string,
-//   PhoneNumber: string;
-//   Preference:string;
-//   profile_picture: string ,
-  
-// }
+// // Define your JWT payload interface
 // interface JwtPayload {
 //   healthCardNumber: string; // Add this to match your token structure
 //   // Add other fields if your token has them
 // }
+
+// export interface PersonalInfo {
+//   HealthCareNumber: string;
+//   FirstName: string;
+//   LastName: string;
+//   DateOfBirth: string;
+//   Email: string;
+//   Clinic: string;
+//   PhoneNumber: string;
+//   Preference: string;
+//   profile_picture: string;
+// }
+
 // const PERSONAL_INFO: PersonalInfo = {
 //   FirstName: "Santiago",
 //   LastName: "Silva",
 //   HealthCareNumber: "12",
 //   DateOfBirth: "2001/01/18",
-//   Clinic:"Manhattan",
+//   Clinic: "Manhattan",
 //   PhoneNumber: "306 (123) 4567",
 //   Email: "santiago@pgrminc.com",
 //   Preference: "Phone",
 //   profile_picture: "../../../assets/images/profile-placeholder.png",
 // };
-// type ProfileScreenRouteProp = RouteProp<BottomTabParamList, 'Profile'>;
+
 // const ProfileScreen = () => {
-
 //   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-//   const route = useRoute<ProfileScreenRouteProp>(); // Type the route
-//   const { healthCardNumber } = route.params || {}; 
-//    const [lastName,setLastName] = useState(PERSONAL_INFO.LastName)
-//    const [email,setEmail] = useState(PERSONAL_INFO.Email)
-//    const [phone,setPhone] = useState(PERSONAL_INFO.PhoneNumber)
-//    const [dOB,setDOB] = useState(PERSONAL_INFO.DateOfBirth)
-//    const [preference,setPreference] = useState(PERSONAL_INFO.Preference)
-//    const [newhealthCardNumber,setNewhealthCardNumber] = useState(healthCardNumber)
-//    const [profilePic,setProfilePic] = useState('../../../assets/images/profile-placeholder.png')
-//    const token = useAuthStore((state) => state.token); // Get token from store
-//    const logout = useAuthStore((state) => state.logout); // get the logout function
-//    const handleLogout = async () => {
-//     await logout(); // call logout
-//     // Optionally: navigate to login screen
-//     navigation.navigate('LoginPage');
-//     //  if you're using React Navigation
-//   };
+//   const token = useAuthStore((state) => state.token); // Get token from store
+//   const refreshToken = useAuthStore((state) => state.refreshToken); // Get token from store
+//   const logout = useAuthStore((state) => state.logout);
+//   const [healthCardNumber, setHealthCardNumber] = useState<string>(''); // State for healthCardNumber
 
- 
-//   const [profileInfo, setProfileInfo] = useState<PersonalInfo>(PERSONAL_INFO||null); // Use null initially
-
-// const fetchData = async () =>{
-//   const response =  await fetch(`${API_HOME}/api/profile/`,{
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body: JSON.stringify({
-//       healthCardNumber: healthCardNumber,
-//     }),
-//   })
-//   .then((response)=>response.json())
-//   .then((data)=>{
-//     setProfileInfo(data)
-// setProfilePic(data.profile_picture)
-//   })
-
-// }
-
-// useEffect(() => {
-//   const decodeToken = async () => {
+//   const [profileInfo, setProfileInfo] = useState<PersonalInfo>(PERSONAL_INFO);
+//   const checkAndRefreshToken = async () => {
 //     try {
-//       const storedToken = token || (await AsyncStorage.getItem('jwt_token')); // Use store token or fetch from AsyncStorage
-//       if (storedToken) {
-//         const decoded = jwtDecode<JwtPayload>(storedToken);
-//         const extractedHealthCardNumber = decoded.healthCardNumber;
-//         console.log('Decoded HealthCardNumber:', extractedHealthCardNumber);
-//         setNewhealthCardNumber(extractedHealthCardNumber);
-//         console.log(newhealthCardNumber);
-//       } else {
-//         console.log('No token found');
+//       if (!token) return null;
+
+//       const decoded = jwtDecode<JwtPayload & { exp: number }>(token);
+//       const isExpired = decoded.exp * 1000 < Date.now();
+
+//       if (isExpired) {
+//         console.log('Token expired, refreshing...');
+//         if (!refreshToken) {
+//           throw new Error('No refresh token available');
+//         }
+
+//         const response = await fetch(`${API_HOME}/api/token/refresh/`, {
+//           method: 'POST',
+//           headers: {
+//             'Content-Type': 'application/json',
+//           },
+//           body: JSON.stringify({ refresh: refreshToken }),
+//         });
+
+//         if (!response.ok) {
+//           throw new Error('Token refresh failed');
+//         }
+
+//         const { token: newToken, refresh: newRefreshToken } = await response.json();
+//          useAuthStore.getState().setToken(newToken);
+//          useAuthStore.getState().setRefreshToken(newRefreshToken);
+//         return newToken;
 //       }
+
+//       return token;
 //     } catch (error) {
-//       console.error('Failed to decode token:', error);
+//       console.error('Token refresh error:', error);
+//       await logout();
+//       navigation.navigate('LoginPage');
+//       return null;
 //     }
 //   };
-//   decodeToken();
-// }, [token]);
+
+//   // Decode token to get healthCardNumber
+//   useEffect(() => {
+//     const decodeToken = async () => {
+//       try {
+//         const storedToken = token || (await AsyncStorage.getItem('jwt_token')); // Use store token or fetch from AsyncStorage
+//         if (storedToken) {
+//           const decoded = jwtDecode<JwtPayload>(storedToken);
+//           const extractedHealthCardNumber = decoded.healthCardNumber;
+//           console.log('Decoded HealthCardNumber:', extractedHealthCardNumber);
+//           setHealthCardNumber(extractedHealthCardNumber);
+//         } else {
+//           console.log('No token found');
+//         }
+//       } catch (error) {
+//         console.error('Failed to decode token:', error);
+//       }
+//     };
+//     decodeToken();
+//   }, [token]);
+
+//   // Fetch profile data using healthCardNumber
+//   const fetchData = async () => {
+//     if (!healthCardNumber) return; // Wait until healthCardNumber is set
+//     try {
+//       const response = await fetch(`${API_HOME}/api/profile/`, {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({
+//           healthCardNumber: healthCardNumber, // Use decoded value
+//         }),
+//       });
+//       const data = await response.json();
+//       console.log('Profile Data:', data);
+//       setProfileInfo(data);
+//       setProfilePic(data.profile_picture);
+//     } catch (error) {
+//       console.error('Error fetching profile:', error);
+//     }
+//   };
 
 //   useFocusEffect(
 //     useCallback(() => {
-//       fetchData(); // Fetch fresh data when screen is focused
-//     }, [])
+//       fetchData(); // Fetch profile when screen is focused
+//     }, [healthCardNumber]) // Depend on healthCardNumber
 //   );
-//   // const displayInfo =PERSONAL_INFO;
+
+//   const handleLogout = async () => {
+//     await logout();
+//     navigation.navigate('LoginPage');
+//   };
+
 //   const displayInfo = profileInfo || PERSONAL_INFO;
-//   const [firstName,setFirstName] = useState(displayInfo.FirstName)
+//   const [profilePic, setProfilePic] = useState(displayInfo.profile_picture);
+
 //   const params = {
 //     healthCardNumber: healthCardNumber,
 //     firstName: displayInfo.FirstName,
@@ -120,7 +155,9 @@
 //     preference: displayInfo.Preference,
 //     profile_picture: displayInfo.profile_picture,
 //   };
-//   console.log('debugging with params:',params);
+
+//   console.log('Params for EditProfile:', params);
+
 //   return (
 //     <SafeAreaView style={styles.container}>
 //       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -129,8 +166,7 @@
 //         {/* Profile Image */}
 //         <View style={styles.profileImageContainer}>
 //           <Image 
-//             source={{uri:displayInfo.profile_picture}} 
-//             // source={require(profilePic)} 
+//             source={{ uri: displayInfo.profile_picture }} 
 //             style={styles.profileImage}
 //           />
 //           <Text style={styles.name}>{displayInfo.FirstName}</Text>
@@ -140,8 +176,6 @@
 //         <View style={styles.infoCard}>
 //           <InfoItem label="Health card number" value={displayInfo.HealthCareNumber} />
 //           <InfoItem label="Date of birth" value={displayInfo.DateOfBirth} />
-//           {/* <InfoItem label="Sex" value={PERSONAL_INFO.sex} /> */}
-//           {/* <InfoItem label="Pronouns" value={PERSONAL_INFO.pronouns} /> */}
 //           <InfoItem label="Phone" value={displayInfo.PhoneNumber} />
 //           <InfoItem label="Email" value={displayInfo.Email} />
 //         </View>
@@ -149,15 +183,16 @@
 //         {/* Edit Button */}
 //         <TouchableOpacity 
 //           style={styles.editButton}
-//           onPress={() => navigation.navigate('EditProfile',params)}
+//           onPress={() => navigation.navigate('EditProfile', params)}
 //         >
 //           <Text style={styles.editButtonText}>Edit</Text>
 //         </TouchableOpacity>
 
-//         <TouchableOpacity style={styles.editButton}
-//                   onPress={() => handleLogout()}
-
-//         >          <Text style={styles.editButtonText}>logout</Text>
+//         <TouchableOpacity 
+//           style={styles.editButton}
+//           onPress={handleLogout}
+//         >
+//           <Text style={styles.editButtonText}>Logout</Text>
 //         </TouchableOpacity>
 //       </ScrollView>
 //     </SafeAreaView>
@@ -171,6 +206,7 @@
 //   </View>
 // );
 
+// // Styles remain unchanged
 // const styles = StyleSheet.create({
 //   container: {
 //     flex: 1,
@@ -190,7 +226,7 @@
 //     color: colors.base.black,
 //     marginBottom: 28,
 //     marginTop: 28,
-//     textAlign:"center",
+//     textAlign: "center",
 //     alignSelf: 'center',
 //   },
 //   profileImageContainer: {
@@ -246,22 +282,23 @@
 //   },
 // });
 
-// export default ProfileScreen; 
+// export default ProfileScreen;
+
+
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native';
 import { colors } from '../../theme/colors';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList } from '../../navigation/Router';
 import { API_HOME } from '../auth/config';
 import { useAuthStore } from '../../store/useAuthStore';
-import { jwtDecode } from 'jwt-decode'; // Import jwt-decode
+import { jwtDecode } from 'jwt-decode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Define your JWT payload interface
 interface JwtPayload {
-  healthCardNumber: string; // Add this to match your token structure
-  // Add other fields if your token has them
+  healthCardNumber: string;
+  exp: number;
 }
 
 export interface PersonalInfo {
@@ -290,58 +327,122 @@ const PERSONAL_INFO: PersonalInfo = {
 
 const ProfileScreen = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  const token = useAuthStore((state) => state.token); // Get token from store
-  const logout = useAuthStore((state) => state.logout);
-  const [healthCardNumber, setHealthCardNumber] = useState<string>(''); // State for healthCardNumber
-
+  const { token, refreshToken, setToken, setRefreshToken, logout } = useAuthStore();
+  const [healthCardNumber, setHealthCardNumber] = useState<string>('');
   const [profileInfo, setProfileInfo] = useState<PersonalInfo>(PERSONAL_INFO);
+  const [profilePic, setProfilePic] = useState(profileInfo.profile_picture);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Decode token to get healthCardNumber
-  useEffect(() => {
-    const decodeToken = async () => {
-      try {
-        const storedToken = token || (await AsyncStorage.getItem('jwt_token')); // Use store token or fetch from AsyncStorage
-        if (storedToken) {
-          const decoded = jwtDecode<JwtPayload>(storedToken);
-          const extractedHealthCardNumber = decoded.healthCardNumber;
-          console.log('Decoded HealthCardNumber:', extractedHealthCardNumber);
-          setHealthCardNumber(extractedHealthCardNumber);
-        } else {
-          console.log('No token found');
-        }
-      } catch (error) {
-        console.error('Failed to decode token:', error);
-      }
-    };
-    decodeToken();
-  }, [token]);
-
-  // Fetch profile data using healthCardNumber
-  const fetchData = async () => {
-    if (!healthCardNumber) return; // Wait until healthCardNumber is set
+  const refreshAuthToken = async () => {
     try {
-      const response = await fetch(`${API_HOME}/api/profile/`, {
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const response = await fetch(`${API_HOME}/api/token/refresh/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ refresh: refreshToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Token refresh failed');
+      }
+
+      const { token: newToken, refresh: newRefreshToken } = await response.json();
+      
+      // Update tokens in store and storage
+      setToken(newToken);
+      setRefreshToken(newRefreshToken);
+      await AsyncStorage.multiSet([
+        ['jwt_token', newToken],
+        ['refresh_token', newRefreshToken]
+      ]);
+
+      return newToken;
+    } catch (error) {
+      console.error('Refresh token error:', error);
+      await logout();
+      navigation.navigate('LoginPage');
+      return null;
+    }
+  };
+
+  const fetchProfileData = async (currentToken: string) => {
+    try {
+      const decoded = jwtDecode<JwtPayload>(currentToken);
+      setHealthCardNumber(decoded.healthCardNumber);
+
+      const response = await fetch(`${API_HOME}/api/profile/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Authorization: `Bearer ${currentToken}`,
+        },
         body: JSON.stringify({
-          healthCardNumber: healthCardNumber, // Use decoded value
+          healthCardNumber: decoded.healthCardNumber,
         }),
       });
+
+      if (response.status === 401) {
+        const newToken = await refreshAuthToken();
+        if (newToken) {
+          return fetchProfileData(newToken); // Retry with new token
+        }
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile');
+      }
+
       const data = await response.json();
-      console.log('Profile Data:', data);
       setProfileInfo(data);
       setProfilePic(data.profile_picture);
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Fetch profile error:', error);
+      Alert.alert('Error', 'Failed to load profile data');
+    }
+  };
+
+  const loadProfile = async () => {
+    setIsLoading(true);
+    try {
+      let currentToken = token;
+      
+      // Check if token exists and is valid
+      if (currentToken) {
+        const decoded = jwtDecode<JwtPayload>(currentToken);
+        const isExpired = decoded.exp * 1000 < Date.now();
+
+        if (isExpired) {
+          currentToken = await refreshAuthToken();
+          if (!currentToken) return;
+        }
+      } else {
+        // Try to get token from storage
+        currentToken = await AsyncStorage.getItem('jwt_token');
+        if (!currentToken) {
+          await logout();
+          navigation.navigate('LoginPage');
+          return;
+        }
+      }
+
+      await fetchProfileData(currentToken);
+    } catch (error) {
+      console.error('Profile load error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useFocusEffect(
     useCallback(() => {
-      fetchData(); // Fetch profile when screen is focused
-    }, [healthCardNumber]) // Depend on healthCardNumber
+      loadProfile();
+    }, [token, refreshToken])
   );
 
   const handleLogout = async () => {
@@ -350,7 +451,6 @@ const ProfileScreen = () => {
   };
 
   const displayInfo = profileInfo || PERSONAL_INFO;
-  const [profilePic, setProfilePic] = useState(displayInfo.profile_picture);
 
   const params = {
     healthCardNumber: healthCardNumber,
@@ -364,14 +464,19 @@ const ProfileScreen = () => {
     profile_picture: displayInfo.profile_picture,
   };
 
-  console.log('Params for EditProfile:', params);
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading profile...</Text>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Personal Information</Text>
 
-        {/* Profile Image */}
         <View style={styles.profileImageContainer}>
           <Image 
             source={{ uri: displayInfo.profile_picture }} 
@@ -380,7 +485,6 @@ const ProfileScreen = () => {
           <Text style={styles.name}>{displayInfo.FirstName}</Text>
         </View>
 
-        {/* Info Card */}
         <View style={styles.infoCard}>
           <InfoItem label="Health card number" value={displayInfo.HealthCareNumber} />
           <InfoItem label="Date of birth" value={displayInfo.DateOfBirth} />
@@ -388,7 +492,6 @@ const ProfileScreen = () => {
           <InfoItem label="Email" value={displayInfo.Email} />
         </View>
 
-        {/* Edit Button */}
         <TouchableOpacity 
           style={styles.editButton}
           onPress={() => navigation.navigate('EditProfile', params)}
@@ -397,7 +500,7 @@ const ProfileScreen = () => {
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={styles.editButton}
+          style={[styles.editButton, { backgroundColor: 'red' }]}
           onPress={handleLogout}
         >
           <Text style={styles.editButtonText}>Logout</Text>
@@ -414,11 +517,15 @@ const InfoItem = ({ label, value }: { label: string; value: string }) => (
   </View>
 );
 
-// Styles remain unchanged
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.base.white,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   scrollContent: {
     flexGrow: 1,
@@ -481,7 +588,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     width: 114,
     alignItems: 'center',
-    marginBottom: 80,
+    marginBottom: 20,
   },
   editButtonText: {
     color: colors.base.white,

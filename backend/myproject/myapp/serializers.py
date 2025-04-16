@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cart, Products, User, UserProfile
+from .models import Cart, Products, User, UserProfile,Doctors
 from .models import Appointments
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,6 +25,12 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Appointments
+        fields = '__all__'  # Include all fields in JSON
+
+class DoctorsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Doctors
         fields = '__all__'  # Include all fields in JSON
 
 

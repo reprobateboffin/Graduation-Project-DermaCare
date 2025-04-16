@@ -1,5 +1,7 @@
 import datetime
+import datetime
 import json
+import logging
 import random
 from venv import logger
 from django.shortcuts import render
@@ -34,7 +36,7 @@ from .serializers import CartSerializer
 from .serializers import InvoiceSerializer
 from .models import Invoice
 from .serializers import BlogSerializer
-
+from rest_framework_simplejwt.views import TokenRefreshView
 # Define class labels
 label_mapping = {
     0: 'nv',
@@ -336,13 +338,36 @@ def get_token(request):
 
         access_token = str(refresh.access_token)
 
-        return Response({'token': access_token}, status=status.HTTP_200_OK)
+        return Response({'token': access_token,
+                         'refresh': str(refresh)
+                         }, status=status.HTTP_200_OK)
 
 
 
     except User.DoesNotExist:
         return Response({'error': 'User with provided health card number not found'}, status=status.HTTP_400_BAD_REQUEST)
+from rest_framework_simplejwt.tokens import RefreshToken
 
+@api_view(['POST'])
+def refresh_token(request):
+    refresh_token = request.data.get('refresh')
+    
+    if not refresh_token:
+        return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        refresh = RefreshToken(refresh_token)
+        access_token = str(refresh.access_token)
+        
+        return Response({
+            'token': access_token,
+            'refresh': str(refresh)  # Optional: return a new refresh token if you want to rotate tokens
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({'error': 'Invalid refresh token'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
 @api_view(['POST'])
 
 def get_user_info(request):
@@ -700,3 +725,137 @@ def buy_cart_item(request):
         return Response({"error": "Cart item not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def update_cart_item(request):
+    try:
+        operation = request.data.get('op')
+        healthCareNumber = request.data.get('healthCardNumber')
+        serialNumber = request.data.get('serialNumber')
+        user = User.objects.get(HealthCareNumber=healthCareNumber)
+        product = Products.objects.get(serialNumber=serialNumber)
+
+        cart_item = Cart.objects.get(healthCardNumber=user, serialNumber=product)
+
+        
+# Update quantity based on operation
+        if operation == 'inc':
+            cart_item.quantity += 1
+        elif operation == 'dec':
+            if cart_item.quantity <= 1:
+                return Response({"error": "Quantity cannot be less than 1"}, status=status.HTTP_400_BAD_REQUEST)
+            cart_item.quantity -= 1
+
+        # Save updated cart item
+        cart_item.save()
+
+        return Response({
+            "message": f"Quantity updated to {cart_item.quantity}",
+            "cart_item": {
+                "serialNumber": cart_item.serialNumber.serialNumber,
+                "quantity": cart_item.quantity
+            }
+        }, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({"error":"an eror has occurred"})
+    
+
+
+
+@api_view(['POST'])
+def buy_all_cart_item(request):
+    try:
+        healthCardNumber = request.data.get('healthCardNumber')
+
+        # Validate input
+        if not healthCardNumber:
+            return Response({"error": "healthCardNumber is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Fetch user
+        try:
+            user = User.objects.get(HealthCareNumber=healthCardNumber)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Fetch all cart items for the user
+        cart_items = Cart.objects.filter(healthCardNumber=user)
+
+
+        if not cart_items.exists():
+            return Response({"error": "No items in cart"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create invoices and collect details
+        invoices_created = []
+        for cart_item in cart_items:
+            product = cart_item.serialNumber
+            invoice = Invoice.objects.create(
+                health_card_number=user.HealthCareNumber,
+                serial_number=product.serialNumber,
+                quantity=cart_item.quantity,
+                price=product.price * cart_item.quantity  # Assuming Products model has a price field
+            )
+            invoices_created.append({
+                "serial_number": product.serialNumber,
+                "quantity": cart_item.quantity,
+                "price": product.price * cart_item.quantity
+            })
+
+        # Delete all cart items after creating invoices
+        cart_items.delete()
+
+        return Response({
+            "message": "All cart items purchased successfully",
+            "invoices": invoices_created,
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": f"An error has occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+from .models import Doctors
+from .serializers import DoctorsSerializer
+@api_view(['Get'])
+def get_doctors(request):
+    doctors = Doctors.objects.all()
+    serializer_data = DoctorsSerializer(doctors, many=True, context={'request': request})
+    print(serializer_data)
+    return Response(serializer_data.data)
+
+@api_view(['GET'])
+def get_contact_info(request):
+    return Response({"email": "reception@pacmc.com",
+  "phone": "306-922-2002",
+  "address": "1135 Central Avenue"})
+
+
+@api_view(['GET'])
+def get_hours_info(request):
+    return Response([  {
+          "branchName": "Manhattan",
+          "hours": "Monday to Friday 9 a.m. to 5 p.m."
+        },
+        {
+          "branchName": "Down Town",
+          "hours": "Monday to Friday 9 a.m. to 5 p.m.",
+          "hoursWeekend": "Sat from 10 a.m. to 6 p.m."
+        }])
+
+
+
+from django.db.models import Sum
+
+@api_view(['POST'])
+def get_cart_quantity(request):
+    healthCardNumber = request.data.get('healthCardNumber')
+    try:
+        user = User.objects.get(HealthCareNumber=healthCardNumber)
+        total_quantity = Cart.objects.filter(healthCardNumber=user).aggregate(
+            total=Sum('quantity')
+        )['total'] or 0  # Returns 0 if cart is empty
+        
+        return Response({'count': str(total_quantity)})
+    
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=404)

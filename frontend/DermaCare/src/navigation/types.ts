@@ -28,6 +28,8 @@ export type RootStackParamList = {
   EventDetail: { event: Event };
   YearlyCalendar: undefined;
   Cart: {healthCardNumber:string};
+  EnterCreditCardBuyAll: {healthCardNumber: string};
+  SeeOurPhysicians: undefined;
   EnterCreditCardScreen: {healthCardNumber: string;
     serialNumber: string;
     price: string;

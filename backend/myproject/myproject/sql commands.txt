@@ -135,3 +135,24 @@ mysql> CREATE TABLE cart_items (
     ->     FOREIGN KEY (cart_id) REFERENCES user_carts(HealthCareNumber) ON DELETE CASCADE,
     ->     FOREIGN KEY (product_id) REFERENCES Products(serialNumber) ON DELETE CASCADE
     -> );
+
+    -- First, make sure your table exists with the correct structure
+CREATE TABLE IF NOT EXISTS `doctors` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `title` varchar(100) NOT NULL,
+  `ssn` int NOT NULL,
+  `image` varchar(255) NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ssn` (`ssn`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Insert sample data with your image URLs
+INSERT INTO `doctors` (`name`, `title`, `ssn`, `image`) VALUES
+('Dr. Egbeyemi', 'Family Physician', 12345, 'doctors/doctor1.jpg'),
+('Dr. Maya', 'Family Physician', 12346, 'doctors/doctor2.jpg'),
+('Dr. Smith', 'Cardiologist', 12347, 'doctors/doctor3.jpg'),
+('Dr. Johnson', 'Neurologist', 12348, 'doctors/doctor4.jpg');
+
+-- Verify the data was inserted correctly
+SELECT * FROM `doctors`;

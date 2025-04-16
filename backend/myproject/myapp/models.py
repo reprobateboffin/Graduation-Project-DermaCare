@@ -129,3 +129,16 @@ class Blog(models.Model):
         managed = False  
     def __str__(self):
         return self.title
+
+
+class Doctors(models.Model):
+    name = models.CharField(max_length=100)
+    title = models.CharField(max_length=100)
+    ssn = models.IntegerField(unique=True)
+    image = models.ImageField(upload_to='doctors/', null=True, blank=True)  # Add this
+    
+    class Meta:
+        db_table = 'doctors'  # Explicitly sets the MySQL table name
+    
+    def __str__(self):
+        return f"{self.name} ({self.title})"

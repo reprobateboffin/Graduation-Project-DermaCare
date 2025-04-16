@@ -25,10 +25,23 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-u4)&=_dlps25my_ii6%8t$m%33cgc+uz-y&y@ps7du*h$x=0=&"
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
 ALLOWED_HOSTS = ['*']
 # ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.1.107']
 
@@ -60,11 +73,20 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'HealthCareNumber',  # Match your User model's field name
+    'USER_ID_CLAIM': 'healthCardNumber',  # Match the claim in your JWT payload
+}
+
 from datetime import timedelta
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),  # Token expires in 1 hour
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Refresh token lasts 7 days
+    'USER_ID_FIELD': 'HealthCareNumber',  # Replace with your actual primary key field name
+    'USER_ID_CLAIM': 'healthCardNumber',           # The claim name in the
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
 }
 
 MIDDLEWARE = [
@@ -84,7 +106,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "myproject.urls"
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",

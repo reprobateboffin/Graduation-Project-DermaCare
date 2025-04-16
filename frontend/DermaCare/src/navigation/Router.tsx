@@ -38,11 +38,13 @@ import Cart from '../screens/SubHeaders/Cart';
 import EnterCreditCardScreen from '../screens/SubHeaders/EnterCreditCardScreen';
 import BookmarkedBlogs from '../screens/SubHeaders/BookmarkedBlogs';
 import BlogDetails from '../screens/SubHeaders/BlogDetails';
-
+import EnterCrediCardBuyAll from '../screens/SubHeaders/EnterCreditCardBuyAll';
+import SeeOurPhysicians from '../screens/tabs/Physicians/SeeOurPhysicians';
 export type RootStackParamList = {
   Welcome: undefined;
   Loading: undefined;
-  MainTabs: { healthCardNumber?: string }; // Allow healthCardNumber as an optional param  EditProfile: undefined;
+  MainTabs: { healthCardNumber?: string }; // Allow healthCardNumber as an optional param 
+  //  EditProfile: undefined;
   RegisterPage: undefined;
   RegisterPage2: undefined;
   RegisterVerification: undefined;
@@ -72,8 +74,10 @@ export type RootStackParamList = {
   Cart: undefined,
   BookmarkedBlogs: undefined;
   BlogDetails: {title: string, image_url: string, subText: string, body: string};
+  SeeOurPhysicians: undefined;
 
   EditProfile: {healthCardNumber:string,firstName:string,lastName:string,dOB:string,email:string,phoneNumber:string,Clinic:string,preference:string,profile_picture: string}
+  EnterCreditCardBuyAll: {healthCardNumber: string};
   EnterCreditCardScreen: {healthCardNumber: string;
     serialNumber: string;
     price: string;
@@ -122,8 +126,10 @@ const Router = () => {
           <Stack.Screen name="Cart" component={Cart} />
           <Stack.Screen name="SkinCancerConcern" component={SkinCancerConcern} />
           <Stack.Screen name="EnterCreditCardScreen" component={EnterCreditCardScreen} />
+          <Stack.Screen name="EnterCreditCardBuyAll" component={EnterCrediCardBuyAll} />
           <Stack.Screen name="BookmarkedBlogs" component={BookmarkedBlogs} />
           <Stack.Screen name="BlogDetails" component={BlogDetails} />
+          <Stack.Screen name="SeeOurPhysicians" component={SeeOurPhysicians} />
         </>
       ) : (
         // Unauthenticated users see auth screens

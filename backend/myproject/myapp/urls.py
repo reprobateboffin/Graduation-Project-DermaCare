@@ -3,7 +3,6 @@ from . import views
 from django.conf.urls.static import static
 from django.conf import settings
 
-
 urlpatterns = [
     
     path('', views.home, name='home'),
@@ -25,12 +24,18 @@ urlpatterns = [
     path("upload-pfp/", views.upload_profile_picture, name="upload-profile-picture"),
     path("get-pfp/", views.get_user_profile, name="get-profile-picture"),
     path("get-products/", views.get_products, name="get-products"),
+    path("get-doctors/", views.get_doctors, name="get-doctors"),
+    path("get-contact-info/", views.get_contact_info, name="get-contact-info"),
+    path("get-hours-info/", views.get_hours_info, name="get-hours-info"),
+    path("get-cart-quantity/", views.get_cart_quantity, name="get-cart-quantity"),
     path("add-to-cart/", views.add_to_cart, name="add-to-cart"),
     path("get-cart-items/", views.get_cart_items, name="get-cart-items"),
     path("remove-cart-item/", views.remove_cart_item, name="remove-cart-items"),
     path("buy-cart-item/", views.buy_cart_item, name="buy-cart-items"),
+    path("buy-all-cart-items/", views.buy_all_cart_item, name="buy-all-cart-items"),
+    path("update-cart-item/", views.update_cart_item, name="update-cart-items"),
     path('blogs/<int:pk>/', views.update_bookmark, name='update_bookmark'),
-
-
+    path('token/refresh/', views.refresh_token, name='refresh_token'),
+    # path('token/refresh/test/', TokenRefreshView.as_view(), name='refresh_token_test'),
 ]
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

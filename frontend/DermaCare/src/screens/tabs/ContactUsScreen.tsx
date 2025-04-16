@@ -1,8 +1,56 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ImageBackground, Image } from 'react-native';
 import { colors } from '../../theme/colors';
+import { API_HOME } from '../auth/config';
+
+// const contactInfo = {
+//   "email": "reception@pacmc.com",
+//   "phone": "306-922-2002",
+//   "address": "1135 Central Avenue"
+// }
+
+interface Contact {
+  email: string,
+  phone:string,
+  address:string
+}
 
 const ContactUsScreen = () => {
+  const [contactInfo, setContactInfo] = useState<Contact>({
+     "email": "reception@pacmc.com",
+       "phone": "306-922-2002",
+      "address": "1135 Central Avenue"});
+
+
+
+  const fetchData = async ()=>{
+    try {
+          const response =  await fetch(`${API_HOME}/api/get-contact-info`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            
+          });
+    
+         
+    
+          const data = await response.json();
+          console.log('Booking response:', data);
+    
+      setContactInfo(data);
+  
+        } catch (error) {
+          console.error('Error booking appointment:', error);
+          alert(`Failed to book: ${error}`);
+        } 
+  }
+useEffect( 
+  ()=>{
+    fetchData()
+  }
+  ,[])
+
   return (
     <ImageBackground source={require('../../../assets/images/doctor-patient.png')} style={styles.container}>
  <View style={styles.overlay}></View>
@@ -14,19 +62,19 @@ const ContactUsScreen = () => {
         <View style={styles.contacts}>
           <View style={styles.emailContainer}>
             <Image source={require('../../../assets/icons/x.png')} style={[styles.emailIcon, { tintColor: 'white' }]} />
-            <Text style={styles.emailText}>reception@pacmc.com</Text>
+            <Text style={styles.emailText}>{contactInfo.email}</Text>
           </View>
 
           <View style={styles.phoneContainer}>
             <Image source={require('../../../assets/icons/x.png')} style={[styles.phoneIcon, { tintColor: 'white' }]} />
 
-            <Text style={styles.phoneText}>306-922-2002</Text>
+            <Text style={styles.phoneText}>{contactInfo.phone}</Text>
           </View>
 
           <View style={styles.locationContainer}>
             <Image source={require('../../../assets/icons/x.png')} style={[styles.locationIcon, { tintColor: 'white' }]} />
 
-            <Text style={styles.locationText}>1135 Central Avenue</Text>
+            <Text style={styles.locationText}>1{contactInfo.address}</Text>
           </View>
         </View>
 
